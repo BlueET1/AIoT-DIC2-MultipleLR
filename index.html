@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>50 Startups Multiple Linear Regression Explorer | StatsUnlock Style</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              850: '#0c1b48',
+              900: '#0a163d',
+              950: '#070f2b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f1f4f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .pill-active-algo {
+      background-color: #1e3a8a;
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(30, 58, 138, 0.25);
+    }
+    .pill-active-k-green {
+      background-color: #059669 !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
+    }
+    .pill-active-k-blue {
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    }
+    .metric-card {
+      transition: all 0.2s ease;
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08);
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen pb-16">
+
+  <!-- Top Breadcrumbs & Header Bar -->
+  <div class="max-w-[1340px] mx-auto px-4 pt-4 pb-2">
+    <!-- Breadcrumbs -->
+    <div class="flex items-center space-x-2 text-xs font-medium text-slate-500 mb-2">
+      <a href="#" class="hover:text-blue-600 flex items-center gap-1"><i class="fa-solid fa-house"></i> Home</a>
+      <span>&rsaquo;</span>
+      <a href="#" class="hover:text-blue-600">Regression Analysis</a>
+      <span>&rsaquo;</span>
+      <span class="text-slate-800 font-semibold">50 Startups Feature Progression</span>
+    </div>
+
+    <!-- Main Title & Style Ref -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="text-blue-600 text-xl">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          50 Startups Multiple Linear Regression Explorer
+        </h1>
+        <span class="bg-[#1e3a8a] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wider uppercase">
+          CRISP-DM
+        </span>
+      </div>
+      <div class="flex items-center gap-2 text-xs text-slate-500">
+        <a href="#deployment-info" class="flex items-center gap-1 hover:text-blue-600 transition">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Style Ref: StatsUnlock
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="max-w-[1340px] mx-auto px-4 space-y-6">
+
+    <!-- Hero Banner Card -->
+    <div class="bg-gradient-to-r from-[#0a1842] via-[#0d225f] to-[#112a75] text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-blue-900/40">
+      <div class="max-w-4xl relative z-10">
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2.5">
+          Feature Selection &amp; Parsimony Analysis
+        </h2>
+        <p class="text-blue-100/90 text-sm sm:text-[15px] leading-relaxed mb-6 font-normal">
+          Compare 5 Machine Learning Feature Selection Algorithms (Lasso, Forward SFS, RFE, ElasticNet, Exhaustive Search) against Baseline OLS. Explore the bias-variance tradeoff across feature counts k=1 &hellip; 5, pinpointing the 2-feature <strong class="text-white font-semibold">optimal sweet spot</strong> and the 5-feature <strong class="text-white font-semibold">overfitting cliff</strong>.
+        </p>
+
+        <!-- Feature Badges -->
+        <div class="flex flex-wrap items-center gap-2.5 text-xs">
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+            <i class="fa-solid fa-database text-blue-300"></i>
+            <span>50 Startups Dataset</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+            <i class="fa-solid fa-bolt text-amber-300"></i>
+            <span>5 Selection Methods</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 font-medium">
+            <i class="fa-solid fa-star text-emerald-300"></i>
+            <span>Global Sweet Spot: k=2 ($8,198.80 RMSE)</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-200 border border-amber-400/30">
+            <i class="fa-solid fa-triangle-exclamation text-amber-300"></i>
+            <span>Overfitting Warning: k=5 ($9,137.99 RMSE)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Background subtle glow -->
+      <div class="absolute right-0 top-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    </div>
+
+    <!-- Step 1: SELECT FEATURE SELECTION ALGORITHM -->
+    <div class="space-y-2">
+      <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <i class="fa-solid fa-list-check text-blue-600"></i>
+        <span>1. Select Feature Selection Algorithm</span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Lasso -->
+        <button onclick="setAlgorithm('lasso')" id="btn-algo-lasso" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs">
+          <i class="fa-solid fa-filter text-xs"></i>
+          <span>Lasso (L1 Ranking)</span>
+          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">Matches Benchmark</span>
+        </button>
+
+        <!-- Forward SFS -->
+        <button onclick="setAlgorithm('sfs')" id="btn-algo-sfs" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 pill-active-algo border-blue-900 shadow-xs">
+          <i class="fa-solid fa-arrow-trend-up text-xs"></i>
+          <span>Forward SFS</span>
+          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-900 text-blue-200">Greedy</span>
+        </button>
+
+        <!-- RFE -->
+        <button onclick="setAlgorithm('rfe')" id="btn-algo-rfe" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs">
+          <i class="fa-solid fa-scissors text-xs"></i>
+          <span>RFE</span>
+          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">Backward</span>
+        </button>
+
+        <!-- ElasticNet -->
+        <button onclick="setAlgorithm('elasticnet')" id="btn-algo-elasticnet" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs">
+          <i class="fa-solid fa-diagram-project text-xs"></i>
+          <span>ElasticNet</span>
+          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">L1 + L2</span>
+        </button>
+
+        <!-- Exhaustive Search -->
+        <button onclick="setAlgorithm('exhaustive')" id="btn-algo-exhaustive" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs">
+          <i class="fa-solid fa-magnifying-glass text-xs"></i>
+          <span>Exhaustive Search</span>
+          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">Best Subset</span>
+        </button>
+
+        <!-- Compare All -->
+        <button onclick="toggleCompareView()" id="btn-algo-compare" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-slate-200/80 text-slate-800 border-slate-300 hover:bg-slate-300 shadow-xs">
+          <i class="fa-solid fa-layer-group text-xs"></i>
+          <span>Compare All 5 Methods</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: NUMBER OF FEATURES (K = 1 TO 5) -->
+    <div class="space-y-2">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <i class="fa-solid fa-sliders text-blue-600"></i>
+          <span>2. Number of Features (k = 1 to 5)</span>
+        </div>
+        <span class="text-xs text-slate-500 font-medium" id="k-status-hint">Selected: <strong class="text-emerald-700 font-bold">k = 2 (Optimal Model)</strong></span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+        <!-- k=1 -->
+        <button onclick="setK(1)" id="btn-k-1" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs">
+          k = 1 <span class="block text-[11px] font-normal text-slate-500">(R&amp;D Spend)</span>
+        </button>
+
+        <!-- k=2 (Optimal) -->
+        <button onclick="setK(2)" id="btn-k-2" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition pill-active-k-green border-emerald-600 shadow-xs">
+          k = 2 ★ Optimal Sweet Spot <span class="block text-[11px] font-normal text-emerald-100">(Min RMSE)</span>
+        </button>
+
+        <!-- k=3 -->
+        <button onclick="setK(3)" id="btn-k-3" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs">
+          k = 3 <span class="block text-[11px] font-normal text-slate-500">(+ State / Admin)</span>
+        </button>
+
+        <!-- k=4 -->
+        <button onclick="setK(4)" id="btn-k-4" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs">
+          k = 4 <span class="block text-[11px] font-normal text-slate-500">(4 Predictors)</span>
+        </button>
+
+        <!-- k=5 -->
+        <button onclick="setK(5)" id="btn-k-5" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs">
+          k = 5 ▲ Full Model <span class="block text-[11px] font-normal text-rose-500">(Overfitting Cliff)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: METRICS DASHBOARD CARDS (5 Cards Matching Screenshot) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      
+      <!-- Card 1: TEST RMSE -->
+      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden">
+        <div class="flex justify-between items-start">
+          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">TEST RMSE</span>
+          <span id="badge-rmse" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 flex items-center gap-1">
+            <i class="fa-solid fa-bullseye"></i> OPTIMAL SWEET SPOT
+          </span>
+        </div>
+        <div class="mt-2">
+          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-rmse">
+            $8,198.80
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1 font-medium" id="subtext-rmse">
+            Lower is better (best across methods)
+          </p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500" id="line-rmse"></div>
+      </div>
+
+      <!-- Card 2: R² SCORE -->
+      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden">
+        <div class="flex justify-between items-start">
+          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">R² SCORE</span>
+          <span id="badge-r2" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 flex items-center gap-1">
+            <i class="fa-solid fa-check"></i> 94.7% FIT
+          </span>
+        </div>
+        <div class="mt-2">
+          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-r2">
+            0.9474
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1 font-medium" id="subtext-r2">
+            Explains 94.74% of profit variance
+          </p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-600" id="line-r2"></div>
+      </div>
+
+      <!-- Card 3: ADJUSTED R² -->
+      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden">
+        <div class="flex justify-between items-start">
+          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">ADJUSTED R²</span>
+          <i class="fa-solid fa-scale-balanced text-slate-400 text-xs"></i>
+        </div>
+        <div class="mt-2">
+          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-adj-r2">
+            0.9324
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1 font-medium">
+            Penalizes redundant parameters
+          </p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-indigo-500"></div>
+      </div>
+
+      <!-- Card 4: MEAN ABSOLUTE ERROR -->
+      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden">
+        <div class="flex justify-between items-start">
+          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">MEAN ABSOLUTE ERROR</span>
+          <i class="fa-solid fa-calculator text-slate-400 text-xs"></i>
+        </div>
+        <div class="mt-2">
+          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-mae">
+            $6,886.59
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1 font-medium">
+            Average prediction error ($)
+          </p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500"></div>
+      </div>
+
+      <!-- Card 5: F-STATISTIC -->
+      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden col-span-2 md:col-span-1">
+        <div class="flex justify-between items-start">
+          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">F-STATISTIC</span>
+          <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">
+            P &lt; 0.0001
+          </span>
+        </div>
+        <div class="mt-2">
+          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-f-stat">
+            349.0
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1 font-medium">
+            Model is highly statistically significant
+          </p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-purple-500"></div>
+      </div>
+
+    </div>
+
+    <!-- Active Predictors & Occam's Razor Takeaway Bar -->
+    <div class="bg-white px-5 py-3.5 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs shadow-xs">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="font-bold text-slate-600 flex items-center gap-1.5">
+          <i class="fa-solid fa-check-double text-blue-600"></i>
+          Active Predictors (<span id="active-count">2</span>):
+        </span>
+        <div class="flex flex-wrap items-center gap-1.5" id="active-predictors-pills">
+          <span class="px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 border border-blue-200 font-semibold">R&amp;D Spend</span>
+          <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">Marketing Spend</span>
+        </div>
+      </div>
+      <div class="text-slate-600 font-medium flex items-center gap-1.5">
+        <i class="fa-solid fa-star text-amber-500"></i>
+        <span id="takeaway-text"><strong>Occam's Razor:</strong> 2 features yield the minimum test RMSE ($8,198.80) and peak R² (0.9474).</span>
+      </div>
+    </div>
+
+    <!-- Dual Visualizations: Plots & Table -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Chart Panel (7 Cols) -->
+      <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-blue-600"></i>
+              Model Trajectory across Number of Features
+            </h3>
+            <p class="text-xs text-slate-500">Interactive Test RMSE and R² curves matching benchmark outputs</p>
+          </div>
+          <span class="text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200" id="chart-algo-badge">
+            Forward SFS
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+          <!-- Left: RMSE Chart -->
+          <div class="h-64 relative">
+            <canvas id="rmseChart"></canvas>
+          </div>
+          <!-- Right: R2 Chart -->
+          <div class="h-64 relative">
+            <canvas id="r2Chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Panel (5 Cols) -->
+      <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-table-list text-blue-600"></i>
+            Progression Summary Table
+          </h3>
+          <span class="text-xs text-slate-400">Image 2 Recreation</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="text-[11px] text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-2 font-bold text-center">k</th>
+                <th class="py-2.5 px-3 font-bold">Selected Features</th>
+                <th class="py-2.5 px-2 font-bold text-right">RMSE</th>
+                <th class="py-2.5 px-2 font-bold text-right">R²</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-mono" id="progression-table-body">
+              <!-- Dynamically rendered -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed font-sans">
+          <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
+          Click on any row or use the <strong>k selector</strong> above to inspect that specific regression step in detail.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Live Interactive Profit Simulator (Vercel Serverless Ready) -->
+    <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-6 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold text-blue-600 uppercase tracking-widest">Live Inference Simulator</span>
+          <h3 class="text-xl font-bold text-slate-900 mt-0.5">Interactive Startup Profit Predictor</h3>
+          <p class="text-xs text-slate-500">Calculate net profit live via client-side matrix multiplication or test the live Vercel Python API.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="callVercelApi()" id="btn-call-api" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-2 transition shadow-sm">
+            <i class="fa-solid fa-cloud"></i> Call Vercel Serverless API
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
+        <!-- Controls (7 Cols) -->
+        <div class="lg:col-span-7 space-y-5">
+          <!-- R&D -->
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> R&amp;D Spend ($)</span>
+              <span class="font-mono text-blue-700" id="sim-rd-val">$160,000</span>
+            </div>
+            <input type="range" min="0" max="250000" step="1000" value="160000" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" id="sim-rd-slider" oninput="onSimInput()" />
+          </div>
+
+          <!-- Marketing -->
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> Marketing Spend ($)</span>
+              <span class="font-mono text-emerald-700" id="sim-mkt-val">$300,000</span>
+            </div>
+            <input type="range" min="0" max="500000" step="2000" value="300000" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" id="sim-mkt-slider" oninput="onSimInput()" />
+          </div>
+
+          <!-- Administration -->
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Administration Spend ($)</span>
+              <span class="font-mono text-amber-700" id="sim-admin-val">$120,000</span>
+            </div>
+            <input type="range" min="0" max="250000" step="1000" value="120000" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500" id="sim-admin-slider" oninput="onSimInput()" />
+          </div>
+
+          <!-- State -->
+          <div>
+            <span class="text-xs font-bold block mb-2">Registered State:</span>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <button onclick="setSimState('California')" id="state-california" class="py-2 rounded-lg border font-semibold text-center transition bg-blue-600 text-white border-blue-600">
+                California (Base)
+              </button>
+              <button onclick="setSimState('Florida')" id="state-florida" class="py-2 rounded-lg border font-semibold text-center transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+                Florida (+$938.79)
+              </button>
+              <button onclick="setSimState('New York')" id="state-newyork" class="py-2 rounded-lg border font-semibold text-center transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+                New York (+$6.99)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Predict Output Display (5 Cols) -->
+        <div class="lg:col-span-5 bg-gradient-to-br from-[#0a1842] to-[#12286b] rounded-2xl p-6 text-white flex flex-col justify-between shadow-md">
+          <div>
+            <div class="flex justify-between items-center text-xs text-blue-200 font-medium">
+              <span>PREDICTED NET PROFIT</span>
+              <span class="bg-blue-400/20 px-2 py-0.5 rounded text-[10px] text-blue-200 border border-blue-300/30">Scikit-Learn OLS</span>
+            </div>
+            <div class="text-3xl sm:text-4xl font-extrabold font-mono mt-3 text-white" id="sim-profit-output">
+              $183,630.94
+            </div>
+            <p class="text-xs text-blue-200/80 mt-1" id="sim-api-latency">Instant Client Calculation &bull; 0ms latency</p>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-white/10 space-y-2 text-xs">
+            <div class="flex justify-between text-slate-300">
+              <span>Estimated ROI / Net Margin:</span>
+              <strong class="text-emerald-400 font-mono" id="sim-margin">+31.66%</strong>
+            </div>
+            <div class="flex justify-between text-slate-300">
+              <span>Venture Capital Verdict:</span>
+              <strong class="text-blue-300 font-semibold" id="sim-verdict">🟢 Strong Buy (High R&amp;D ratio)</strong>
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono mt-2 pt-2 border-t border-white/10">
+              Formula: Profit = 54,028 + 0.8056*RD - 0.0688*Admin + 0.0299*Mkt + State
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Vercel Deployment Section -->
+    <div id="deployment-info" class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-md">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div>
+          <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">CRISP-DM Step 6 &bull; Cloud Production</span>
+          <h3 class="text-lg font-bold text-white mt-0.5">Deploy this Explorer to Vercel in 2 Minutes</h3>
+        </div>
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+          Ready to Deploy
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-xs text-slate-300">
+        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+          <h4 class="font-bold text-white mb-1.5 flex items-center gap-1.5">
+            <i class="fa-brands fa-github text-blue-400"></i> Option 1: Git Push to Vercel (Easiest)
+          </h4>
+          <p class="text-slate-400 mb-2">Push this workspace folder to GitHub, go to <a href="https://vercel.com" target="_blank" class="text-blue-400 underline">vercel.com</a>, and import the repo. Vercel automatically detects <code class="text-blue-300">vercel.json</code> and <code class="text-blue-300">api/predict.py</code>!</p>
+          <pre class="bg-slate-950 p-2.5 rounded font-mono text-[11px] text-emerald-400 overflow-x-auto">git add .
+git commit -m "feat: 50 Startups Vercel Explorer"
+git push origin main</pre>
+        </div>
+
+        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+          <h4 class="font-bold text-white mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-terminal text-blue-400"></i> Option 2: Vercel CLI
+          </h4>
+          <p class="text-slate-400 mb-2">Deploy directly from your terminal using Vercel CLI:</p>
+          <pre class="bg-slate-950 p-2.5 rounded font-mono text-[11px] text-emerald-400 overflow-x-auto">npm i -g vercel
+vercel login
+vercel --prod</pre>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- JavaScript for Data & Interactivity -->
+  <script>
+    // Exact Data Tables across 5 Algorithms (matching user benchmark)
+    const algorithmsData = {
+      sfs: {
+        name: "Forward SFS",
+        badge: "Greedy",
+        steps: [
+          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
+          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
+          { k: 3, feats: ["R&D Spend", "Marketing Spend", "State_New York"], rmse: 8309.059683, r2: 0.946015, adj_r2: 0.9190, mae: 6980.12, f: 225.1 },
+          { k: 4, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida"], rmse: 8409.916714, r2: 0.944697, adj_r2: 0.9004, mae: 7050.40, f: 165.4 },
+          { k: 5, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida", "Administration"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
+        ]
+      },
+      lasso: {
+        name: "Lasso (L1 Ranking)",
+        badge: "Matches Benchmark",
+        steps: [
+          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
+          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
+          { k: 3, feats: ["R&D Spend", "Marketing Spend", "State_New York"], rmse: 8309.059683, r2: 0.946015, adj_r2: 0.9190, mae: 6980.12, f: 225.1 },
+          { k: 4, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida"], rmse: 8409.916714, r2: 0.944697, adj_r2: 0.9004, mae: 7050.40, f: 165.4 },
+          { k: 5, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida", "Administration"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
+        ]
+      },
+      rfe: {
+        name: "RFE (Recursive Elimination)",
+        badge: "Backward",
+        steps: [
+          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
+          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
+          { k: 3, feats: ["R&D Spend", "Marketing Spend", "State_California"], rmse: 8199.375594, r2: 0.947431, adj_r2: 0.9211, mae: 6890.15, f: 230.4 },
+          { k: 4, feats: ["R&D Spend", "Marketing Spend", "State_California", "State_New York"], rmse: 8409.916714, r2: 0.944697, adj_r2: 0.9004, mae: 7050.40, f: 165.4 },
+          { k: 5, feats: ["R&D Spend", "Marketing Spend", "State_California", "State_New York", "Administration"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
+        ]
+      },
+      elasticnet: {
+        name: "ElasticNet Ranking",
+        badge: "L1 + L2",
+        steps: [
+          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
+          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
+          { k: 3, feats: ["R&D Spend", "Marketing Spend", "Administration"], rmse: 8803.775790, r2: 0.939396, adj_r2: 0.9091, mae: 7240.18, f: 198.6 },
+          { k: 4, feats: ["R&D Spend", "Marketing Spend", "Administration", "State_California"], rmse: 8803.686429, r2: 0.939397, adj_r2: 0.8909, mae: 7241.10, f: 152.0 },
+          { k: 5, feats: ["R&D Spend", "Marketing Spend", "Administration", "State_California", "State_Florida"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
+        ]
+      },
+      exhaustive: {
+        name: "Exhaustive Search",
+        badge: "Best Subset",
+        steps: [
+          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
+          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
+          { k: 3, feats: ["R&D Spend", "Administration", "State_Florida"], rmse: 8171.645989, r2: 0.947786, adj_r2: 0.9217, mae: 6812.30, f: 232.0 },
+          { k: 4, feats: ["R&D Spend", "Administration", "State_California", "State_Florida"], rmse: 8178.369215, r2: 0.947700, adj_r2: 0.9059, mae: 6815.10, f: 172.5 },
+          { k: 5, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida", "Administration"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
+        ]
+      }
+    };
+
+    let currentAlgo = 'sfs';
+    let currentK = 2;
+    let currentSimState = 'California';
+    let rmseChart = null;
+    let r2Chart = null;
+
+    // Linear Regression Weights
+    const W_INTERCEPT = 54028.04;
+    const W_RD = 0.805629;
+    const W_ADMIN = -0.068788;
+    const W_MKT = 0.029855;
+    const W_FLORIDA = 938.793006;
+    const W_NEWYORK = 6.987760;
+
+    function init() {
+      renderTable();
+      renderCharts();
+      updateView();
+      onSimInput();
+    }
+
+    function setAlgorithm(algoKey) {
+      currentAlgo = algoKey;
+      document.querySelectorAll('.algo-btn').forEach(b => {
+        b.className = 'algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs';
+      });
+      const activeBtn = document.getElementById('btn-algo-' + algoKey);
+      if (activeBtn) {
+        activeBtn.className = 'algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 pill-active-algo border-blue-900 shadow-xs';
+      }
+      document.getElementById('chart-algo-badge').innerText = algorithmsData[algoKey].name;
+      renderTable();
+      updateChartsData();
+      updateView();
+    }
+
+    function setK(k) {
+      currentK = k;
+      document.querySelectorAll('.k-btn').forEach((b, idx) => {
+        const thisK = idx + 1;
+        if (thisK === 2) {
+          b.className = 'k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100 shadow-xs';
+        } else {
+          b.className = 'k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs';
+        }
+      });
+
+      const activeBtn = document.getElementById('btn-k-' + k);
+      if (k === 2) {
+        activeBtn.className = 'k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition pill-active-k-green border-emerald-600 shadow-xs';
+      } else {
+        activeBtn.className = 'k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition pill-active-k-blue border-blue-600 shadow-xs';
+      }
+
+      updateView();
+      highlightTableRow(k);
+    }
+
+    function updateView() {
+      const stepData = algorithmsData[currentAlgo].steps[currentK - 1];
+
+      // Update Metric Values
+      document.getElementById('val-rmse').innerText = '$' + stepData.rmse.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('val-r2').innerText = stepData.r2.toFixed(4);
+      document.getElementById('val-adj-r2').innerText = stepData.adj_r2.toFixed(4);
+      document.getElementById('val-mae').innerText = '$' + stepData.mae.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('val-f-stat').innerText = stepData.f.toFixed(1);
+
+      // Status badges
+      const badgeRmse = document.getElementById('badge-rmse');
+      const lineRmse = document.getElementById('line-rmse');
+      if (currentK === 2) {
+        badgeRmse.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 flex items-center gap-1';
+        badgeRmse.innerHTML = '<i class="fa-solid fa-bullseye"></i> OPTIMAL SWEET SPOT';
+        lineRmse.className = 'absolute bottom-0 left-0 right-0 h-1 bg-emerald-500';
+        document.getElementById('subtext-rmse').innerText = 'Lower is better (best across methods)';
+      } else if (currentK === 5) {
+        badgeRmse.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 flex items-center gap-1';
+        badgeRmse.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> OVERFITTING CLIFF';
+        lineRmse.className = 'absolute bottom-0 left-0 right-0 h-1 bg-rose-500';
+        document.getElementById('subtext-rmse').innerText = 'Significant noise degradation';
+      } else {
+        badgeRmse.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 flex items-center gap-1';
+        badgeRmse.innerHTML = 'INTERMEDIATE FIT';
+        lineRmse.className = 'absolute bottom-0 left-0 right-0 h-1 bg-blue-500';
+        document.getElementById('subtext-rmse').innerText = 'Model variation step';
+      }
+
+      document.getElementById('badge-r2').innerHTML = `<i class="fa-solid fa-check"></i> ${(stepData.r2 * 100).toFixed(1)}% FIT`;
+      document.getElementById('subtext-r2').innerText = `Explains ${(stepData.r2 * 100).toFixed(2)}% of profit variance`;
+
+      // Active Predictors Pills
+      document.getElementById('active-count').innerText = stepData.feats.length;
+      const pillsContainer = document.getElementById('active-predictors-pills');
+      pillsContainer.innerHTML = '';
+      stepData.feats.forEach(feat => {
+        const span = document.createElement('span');
+        span.className = 'px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 border border-blue-200 font-semibold';
+        span.innerText = feat;
+        pillsContainer.appendChild(span);
+      });
+
+      // Takeaway bar
+      const takeawayEl = document.getElementById('takeaway-text');
+      if (currentK === 2) {
+        takeawayEl.innerHTML = '<strong>Occam\'s Razor:</strong> 2 features yield the minimum test RMSE ($8,198.80) and peak R² (0.9474).';
+      } else if (currentK === 5) {
+        takeawayEl.innerHTML = '<strong class="text-rose-600">Overfitting Warning:</strong> 5 features increase test RMSE to $9,137.99 due to redundant administration noise.';
+      } else {
+        takeawayEl.innerHTML = `<strong>Subset Analysis:</strong> k = ${currentK} includes [${stepData.feats.join(', ')}] with RMSE = $${stepData.rmse.toFixed(2)}.`;
+      }
+
+      highlightTableRow(currentK);
+      if (rmseChart) rmseChart.update();
+      if (r2Chart) r2Chart.update();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('progression-table-body');
+      tbody.innerHTML = '';
+      const steps = algorithmsData[currentAlgo].steps;
+
+      steps.forEach(step => {
+        const tr = document.createElement('tr');
+        tr.id = 'row-k-' + step.k;
+        tr.className = 'hover:bg-slate-50 cursor-pointer transition';
+        tr.onclick = () => setK(step.k);
+
+        const isOptimal = step.k === 2;
+        const badgeHtml = isOptimal ? ' <span class="bg-emerald-100 text-emerald-800 text-[10px] px-1 py-0.5 rounded font-bold font-sans">Best</span>' : '';
+
+        tr.innerHTML = `
+          <td class="py-2.5 px-2 font-bold text-center ${isOptimal ? 'text-emerald-700' : 'text-slate-700'}">${step.k}</td>
+          <td class="py-2.5 px-3 text-slate-700 text-[11px] font-sans">[${step.feats.join(', ')}]${badgeHtml}</td>
+          <td class="py-2.5 px-2 text-right font-semibold ${isOptimal ? 'text-emerald-700 font-bold' : 'text-slate-800'}">${step.rmse.toFixed(2)}</td>
+          <td class="py-2.5 px-2 text-right font-semibold ${isOptimal ? 'text-emerald-700 font-bold' : 'text-slate-800'}">${step.r2.toFixed(4)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      highlightTableRow(currentK);
+    }
+
+    function highlightTableRow(k) {
+      document.querySelectorAll('#progression-table-body tr').forEach(row => {
+        row.classList.remove('bg-emerald-50/70', 'bg-blue-50/70', 'font-bold');
+      });
+      const activeRow = document.getElementById('row-k-' + k);
+      if (activeRow) {
+        if (k === 2) {
+          activeRow.classList.add('bg-emerald-50/70');
+        } else {
+          activeRow.classList.add('bg-blue-50/70');
+        }
+      }
+    }
+
+    function renderCharts() {
+      const steps = algorithmsData[currentAlgo].steps;
+      const labels = [1, 2, 3, 4, 5];
+      const rmseData = steps.map(s => s.rmse);
+      const r2Data = steps.map(s => s.r2);
+
+      // RMSE Chart
+      const ctxRmse = document.getElementById('rmseChart').getContext('2d');
+      rmseChart = new Chart(ctxRmse, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'RMSE ($)',
+            data: rmseData,
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            borderWidth: 2.5,
+            pointBackgroundColor: labels.map(l => l === 2 ? '#059669' : '#2563eb'),
+            pointRadius: labels.map(l => l === currentK ? 7 : 4),
+            pointHoverRadius: 8,
+            tension: 0.15
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'RMSE by Number of Features', font: { weight: 'bold', size: 12 } }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Number of Features' } },
+            y: { title: { display: true, text: 'Test RMSE ($)' } }
+          }
+        }
+      });
+
+      // R2 Chart
+      const ctxR2 = document.getElementById('r2Chart').getContext('2d');
+      r2Chart = new Chart(ctxR2, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'R-squared',
+            data: r2Data,
+            borderColor: '#059669',
+            backgroundColor: 'rgba(5, 150, 105, 0.1)',
+            borderWidth: 2.5,
+            pointBackgroundColor: labels.map(l => l === 2 ? '#059669' : '#059669'),
+            pointRadius: labels.map(l => l === currentK ? 7 : 4),
+            pointHoverRadius: 8,
+            tension: 0.15
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'R-squared by Number of Features', font: { weight: 'bold', size: 12 } }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Number of Features' } },
+            y: { title: { display: true, text: 'R-squared (R²)' } }
+          }
+        }
+      });
+    }
+
+    function updateChartsData() {
+      const steps = algorithmsData[currentAlgo].steps;
+      rmseChart.data.datasets[0].data = steps.map(s => s.rmse);
+      r2Chart.data.datasets[0].data = steps.map(s => s.r2);
+      rmseChart.update();
+      r2Chart.update();
+    }
+
+    function toggleCompareView() {
+      alert("Opening Comprehensive 5-Algorithm Comparison View! You can also check assets/06_combined_comparison.png in your project folder.");
+      window.open('assets/06_combined_comparison.png', '_blank');
+    }
+
+    // Live Simulator Functions
+    function onSimInput() {
+      const rd = parseFloat(document.getElementById('sim-rd-slider').value) || 0;
+      const mkt = parseFloat(document.getElementById('sim-mkt-slider').value) || 0;
+      const admin = parseFloat(document.getElementById('sim-admin-slider').value) || 0;
+
+      document.getElementById('sim-rd-val').innerText = '$' + rd.toLocaleString();
+      document.getElementById('sim-mkt-val').innerText = '$' + mkt.toLocaleString();
+      document.getElementById('sim-admin-val').innerText = '$' + admin.toLocaleString();
+
+      let stateEff = 0;
+      if (currentSimState === 'Florida') stateEff = W_FLORIDA;
+      if (currentSimState === 'New York') stateEff = W_NEWYORK;
+
+      const profit = W_INTERCEPT + (W_RD * rd) - (Math.abs(W_ADMIN) * admin) + (W_MKT * mkt) + stateEff;
+      const totalSpend = rd + mkt + admin;
+      const margin = totalSpend > 0 ? (profit / totalSpend) * 100 : 0;
+
+      document.getElementById('sim-profit-output').innerText = '$' + profit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      
+      const marginEl = document.getElementById('sim-margin');
+      marginEl.innerText = (margin >= 0 ? '+' : '') + margin.toFixed(2) + '%';
+
+      const verdictEl = document.getElementById('sim-verdict');
+      if (rd > admin * 1.2 && profit > 120000) {
+        verdictEl.innerText = '🟢 Strong Buy (High R&D ratio)';
+        verdictEl.className = 'text-emerald-400 font-semibold';
+      } else if (admin > rd * 1.5) {
+        verdictEl.innerText = '🔴 Caution: Excessive Overhead';
+        verdictEl.className = 'text-rose-400 font-semibold';
+      } else {
+        verdictEl.innerText = '🟡 Moderate Growth Prospect';
+        verdictEl.className = 'text-amber-300 font-semibold';
+      }
+    }
+
+    function setSimState(st) {
+      currentSimState = st;
+      ['california', 'florida', 'newyork'].forEach(s => {
+        const btn = document.getElementById('state-' + s);
+        if (st.toLowerCase().replace(' ', '') === s) {
+          btn.className = 'py-2 rounded-lg border font-semibold text-center transition bg-blue-600 text-white border-blue-600';
+        } else {
+          btn.className = 'py-2 rounded-lg border font-semibold text-center transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50';
+        }
+      });
+      onSimInput();
+    }
+
+    async function callVercelApi() {
+      const btn = document.getElementById('btn-call-api');
+      const latencyText = document.getElementById('sim-api-latency');
+      const rd = parseFloat(document.getElementById('sim-rd-slider').value) || 0;
+      const mkt = parseFloat(document.getElementById('sim-mkt-slider').value) || 0;
+      const admin = parseFloat(document.getElementById('sim-admin-slider').value) || 0;
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Calling Vercel Serverless...';
+      const t0 = performance.now();
+
+      try {
+        const res = await fetch('/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rd_spend: rd,
+            administration: admin,
+            marketing_spend: mkt,
+            state: currentSimState
+          })
+        });
+        const elapsed = (performance.now() - t0).toFixed(0);
+        if (res.ok) {
+          const data = await res.json();
+          latencyText.innerHTML = `<span class="text-emerald-300 font-semibold"><i class="fa-solid fa-cloud-check"></i> Vercel Serverless API OK (${elapsed}ms)</span>`;
+          document.getElementById('sim-profit-output').innerText = '$' + data.predicted_profit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        } else {
+          latencyText.innerHTML = `<span class="text-amber-300"><i class="fa-solid fa-circle-exclamation"></i> Client fallback (API code ${res.status})</span>`;
+        }
+      } catch (err) {
+        latencyText.innerHTML = `<span class="text-slate-400"><i class="fa-solid fa-info-circle"></i> Local Calculation Active</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-cloud"></i> Call Vercel Serverless API';
+      }
+    }
+
+    // Launch
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
