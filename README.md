@@ -4,6 +4,10 @@
 
 **線上展示：** https://blueet1.github.io/AIoT-DIC2-MultipleLR/
 
+![內建資料集：50 Startups 的總覽與變數表](docs/screenshot-problem.png)
+
+![自訂資料集：貼上 CSV 連結或上傳檔案](docs/screenshot-custom.png)
+
 ## 功能
 
 - **三種 Problem（右上角下拉選單）**
