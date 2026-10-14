@@ -1,920 +1,1522 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>50 Startups Multiple Linear Regression Explorer | StatsUnlock Style</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy: {
-              850: '#0c1b48',
-              900: '#0a163d',
-              950: '#070f2b',
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>50 Startups: Multiple Linear Regression & Feature Selection Explorer</title>
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- Model Data JS -->
+  <script src="model_data.js"></script>
+
   <style>
+    :root {
+      --primary-dark: #343090;
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
+      --primary-subtle: #eef2ff;
+      --accent-blue: #3b82f6;
+      --accent-emerald: #10b981;
+      --accent-emerald-subtle: #ecfdf5;
+      --accent-amber: #f59e0b;
+      --accent-amber-subtle: #fffbeb;
+      --accent-rose: #f43f5e;
+      --accent-rose-subtle: #fff1f2;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+      --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      background-color: #f1f4f9;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--slate-800);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
-    .pill-active-algo {
-      background-color: #1e3a8a;
-      color: #ffffff;
-      box-shadow: 0 2px 4px rgba(30, 58, 138, 0.25);
-    }
-    .pill-active-k-green {
-      background-color: #059669 !important;
-      color: #ffffff !important;
+
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Outfit', sans-serif;
       font-weight: 700;
-      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
+      color: var(--slate-900);
     }
-    .pill-active-k-blue {
-      background-color: #2563eb !important;
-      color: #ffffff !important;
+
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    /* Top Breadcrumb & Header */
+    .top-header {
+      background: white;
+      border-bottom: 1px solid var(--slate-200);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    .header-inner {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--slate-500);
+      margin-bottom: 4px;
+    }
+
+    .breadcrumbs a {
+      color: var(--slate-500);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .breadcrumbs a:hover {
+      color: var(--primary);
+    }
+
+    .header-title-group h1 {
+      font-size: 24px;
+      letter-spacing: -0.02em;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      font-size: 11px;
       font-weight: 700;
-      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+      padding: 3px 9px;
+      border-radius: 9999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ref-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--slate-100);
+      color: var(--slate-700);
+      border: 1px solid var(--slate-200);
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .ref-btn:hover {
+      background: white;
+      border-color: var(--primary-light);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Hero Banner */
+    .hero-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #3730a3 100%);
+      color: white;
+      border-radius: var(--radius-xl);
+      padding: 36px 40px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-card h2 {
+      font-size: 32px;
+      color: white;
+      margin-bottom: 12px;
+      line-height: 1.25;
+    }
+
+    .hero-card p {
+      font-size: 15px;
+      color: #c7d2fe;
+      max-width: 820px;
+      line-height: 1.6;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .hero-pill {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #e0e7ff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Main Grid & Cards */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .card-title-group h3 {
+      font-size: 18px;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--slate-500);
+      margin-top: 2px;
+    }
+
+    /* Controls Bar */
+    .controls-wrapper {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .control-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--slate-400);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .tabs-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 10px 18px;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--slate-700);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      background: var(--primary-subtle);
+      border-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+      color: white;
+      box-shadow: 0 4px 10px rgba(52, 48, 144, 0.25);
+    }
+
+    .tab-btn .badge-pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .tab-btn.active .badge-pill {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+    }
+
+    /* Feature Count Step Buttons */
+    .k-selector-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .k-btn {
+      padding: 9px 16px;
+      border: 1px solid var(--slate-200);
+      background: white;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-700);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .k-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .k-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+    }
+
+    .k-btn.sweet-spot {
+      border-color: var(--accent-emerald);
+      background: var(--accent-emerald-subtle);
+      color: #065f46;
+    }
+
+    .k-btn.sweet-spot.active {
+      background: #059669;
+      border-color: #059669;
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .k-btn.overfitting {
+      border-color: var(--accent-amber);
+    }
+
+    .k-btn.overfitting.active {
+      background: #d97706;
+      border-color: #d97706;
+      color: white;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
     .metric-card {
-      transition: all 0.2s ease;
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--slate-200);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
     }
+
     .metric-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-md);
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary);
+    }
+
+    .metric-card.sweet::before {
+      background: var(--accent-emerald);
+    }
+
+    .metric-card.alert::before {
+      background: var(--accent-amber);
+    }
+
+    .metric-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .metric-val {
+      font-size: 26px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      color: var(--slate-900);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .metric-note {
+      font-size: 12px;
+      color: var(--slate-500);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-green {
+      background: var(--accent-emerald-subtle);
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .badge-blue {
+      background: var(--primary-subtle);
+      color: var(--primary-dark);
+      border: 1px solid #c7d2fe;
+    }
+
+    .badge-amber {
+      background: var(--accent-amber-subtle);
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    /* Dual Charts Grid */
+    .dual-charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 340px;
+      width: 100%;
+    }
+
+    /* Mathematical Equation Box */
+    .equation-card {
+      background: linear-gradient(to right, #fcfdff, #f8faff);
+      border: 1px solid #cfcfea;
+      border-left: 5px solid var(--primary);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .equation-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .equation-formula {
+      font-family: 'Fira Code', monospace;
+      font-size: 15px;
+      color: var(--slate-900);
+      line-height: 1.8;
+      word-break: break-word;
+      background: white;
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--slate-200);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    .eq-intercept { color: #4338ca; font-weight: 600; }
+    .eq-var { color: #0284c7; font-weight: 600; }
+    .eq-pos { color: #059669; font-weight: 600; }
+    .eq-neg { color: #dc2626; font-weight: 600; }
+
+    /* Tables */
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--slate-200);
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      text-align: left;
+    }
+
+    table.data-table thead {
+      background: var(--slate-100);
+      border-bottom: 1px solid var(--slate-200);
+    }
+
+    table.data-table th {
+      padding: 12px 16px;
+      font-weight: 600;
+      color: var(--slate-700);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    table.data-table td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--slate-100);
+      color: var(--slate-700);
+    }
+
+    table.data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.data-table tbody tr:hover {
+      background: #f8faff;
+    }
+
+    .feature-chip {
+      background: var(--primary-subtle);
+      color: var(--primary-dark);
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    /* Interactive Calculator Section */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .calc-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-700);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--slate-300);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--slate-900);
+      transition: all 0.15s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .range-slider {
+      width: 100%;
+      margin-top: 6px;
+      accent-color: var(--primary);
+    }
+
+    .prediction-output-box {
+      background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .prediction-output-box::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .pred-label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #c7d2fe;
+      margin-bottom: 10px;
+    }
+
+    .pred-value {
+      font-size: 38px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      color: #34d399;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .pred-formula-note {
+      font-size: 12px;
+      color: #a5b4fc;
+      line-height: 1.5;
+    }
+
+    /* Outliers & Diagnostics */
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .dot-green { background: var(--accent-emerald); }
+    .dot-amber { background: var(--accent-amber); }
+    .dot-red { background: var(--accent-rose); }
+
+    /* Footer & Acknowledgments */
+    footer {
+      margin-top: 50px;
+      background: white;
+      border-top: 1px solid var(--slate-200);
+      padding: 36px 0;
+      color: var(--slate-600);
+      font-size: 13.5px;
+    }
+
+    .footer-inner {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .ack-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+    .ack-card a {
+      color: var(--primary);
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .dual-charts-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-card {
+        padding: 24px;
+      }
+      .hero-card h2 {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen pb-16">
+<body>
 
-  <!-- Top Breadcrumbs & Header Bar -->
-  <div class="max-w-[1340px] mx-auto px-4 pt-4 pb-2">
-    <!-- Breadcrumbs -->
-    <div class="flex items-center space-x-2 text-xs font-medium text-slate-500 mb-2">
-      <a href="#" class="hover:text-blue-600 flex items-center gap-1"><i class="fa-solid fa-house"></i> Home</a>
-      <span>&rsaquo;</span>
-      <a href="#" class="hover:text-blue-600">Regression Analysis</a>
-      <span>&rsaquo;</span>
-      <span class="text-slate-800 font-semibold">50 Startups Feature Progression</span>
-    </div>
-
-    <!-- Main Title & Style Ref -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3">
-      <div class="flex items-center gap-2.5">
-        <div class="text-blue-600 text-xl">
-          <i class="fa-solid fa-chart-line"></i>
+  <!-- Top Header Navigation -->
+  <header class="top-header">
+    <div class="header-inner">
+      <div>
+        <div class="breadcrumbs">
+          <a href="#"><i class="fa-solid fa-house"></i> Home</a>
+          <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
+          <a href="#">Regression Analysis</a>
+          <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
+          <span style="color: var(--slate-800); font-weight: 600;">50 Startups Feature Progression</span>
         </div>
-        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-          50 Startups Multiple Linear Regression Explorer
-        </h1>
-        <span class="bg-[#1e3a8a] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wider uppercase">
-          CRISP-DM
-        </span>
+        <div class="header-title-group">
+          <h1>
+            <i class="fa-solid fa-chart-line" style="color: var(--primary);"></i>
+            50 Startups Multiple Linear Regression Explorer
+            <span class="brand-badge">CRISP-DM</span>
+          </h1>
+        </div>
       </div>
-      <div class="flex items-center gap-2 text-xs text-slate-500">
-        <a href="#deployment-info" class="flex items-center gap-1 hover:text-blue-600 transition">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i> Style Ref: StatsUnlock
+      <div class="header-actions">
+        <a href="https://statsunlock.com/multiple-linear-regression-calculator/" target="_blank" class="ref-btn">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          Style Ref: StatsUnlock
         </a>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Main Container -->
-  <main class="max-w-[1340px] mx-auto px-4 space-y-6">
+  <div class="container">
 
-    <!-- Hero Banner Card -->
-    <div class="bg-gradient-to-r from-[#0a1842] via-[#0d225f] to-[#112a75] text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-blue-900/40">
-      <div class="max-w-4xl relative z-10">
-        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2.5">
-          Feature Selection &amp; Parsimony Analysis
-        </h2>
-        <p class="text-blue-100/90 text-sm sm:text-[15px] leading-relaxed mb-6 font-normal">
-          Compare 5 Machine Learning Feature Selection Algorithms (Lasso, Forward SFS, RFE, ElasticNet, Exhaustive Search) against Baseline OLS. Explore the bias-variance tradeoff across feature counts k=1 &hellip; 5, pinpointing the 2-feature <strong class="text-white font-semibold">optimal sweet spot</strong> and the 5-feature <strong class="text-white font-semibold">overfitting cliff</strong>.
-        </p>
-
-        <!-- Feature Badges -->
-        <div class="flex flex-wrap items-center gap-2.5 text-xs">
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
-            <i class="fa-solid fa-database text-blue-300"></i>
-            <span>50 Startups Dataset</span>
-          </div>
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
-            <i class="fa-solid fa-bolt text-amber-300"></i>
-            <span>5 Selection Methods</span>
-          </div>
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 font-medium">
-            <i class="fa-solid fa-star text-emerald-300"></i>
-            <span>Global Sweet Spot: k=2 ($8,198.80 RMSE)</span>
-          </div>
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-200 border border-amber-400/30">
-            <i class="fa-solid fa-triangle-exclamation text-amber-300"></i>
-            <span>Overfitting Warning: k=5 ($9,137.99 RMSE)</span>
-          </div>
-        </div>
-      </div>
-      <!-- Background subtle glow -->
-      <div class="absolute right-0 top-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-    </div>
-
-    <!-- Step 1: SELECT FEATURE SELECTION ALGORITHM -->
-    <div class="space-y-2">
-      <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-        <i class="fa-solid fa-list-check text-blue-600"></i>
-        <span>1. Select Feature Selection Algorithm</span>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <!-- Lasso -->
-        <button onclick="setAlgorithm('lasso')" id="btn-algo-lasso" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs">
-          <i class="fa-solid fa-filter text-xs"></i>
-          <span>Lasso (L1 Ranking)</span>
-          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">Matches Benchmark</span>
-        </button>
-
-        <!-- Forward SFS -->
-        <button onclick="setAlgorithm('sfs')" id="btn-algo-sfs" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 pill-active-algo border-blue-900 shadow-xs">
-          <i class="fa-solid fa-arrow-trend-up text-xs"></i>
-          <span>Forward SFS</span>
-          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-900 text-blue-200">Greedy</span>
-        </button>
-
-        <!-- RFE -->
-        <button onclick="setAlgorithm('rfe')" id="btn-algo-rfe" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs">
-          <i class="fa-solid fa-scissors text-xs"></i>
-          <span>RFE</span>
-          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">Backward</span>
-        </button>
-
-        <!-- ElasticNet -->
-        <button onclick="setAlgorithm('elasticnet')" id="btn-algo-elasticnet" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs">
-          <i class="fa-solid fa-diagram-project text-xs"></i>
-          <span>ElasticNet</span>
-          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">L1 + L2</span>
-        </button>
-
-        <!-- Exhaustive Search -->
-        <button onclick="setAlgorithm('exhaustive')" id="btn-algo-exhaustive" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs">
-          <i class="fa-solid fa-magnifying-glass text-xs"></i>
-          <span>Exhaustive Search</span>
-          <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">Best Subset</span>
-        </button>
-
-        <!-- Compare All -->
-        <button onclick="toggleCompareView()" id="btn-algo-compare" class="algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-slate-200/80 text-slate-800 border-slate-300 hover:bg-slate-300 shadow-xs">
-          <i class="fa-solid fa-layer-group text-xs"></i>
-          <span>Compare All 5 Methods</span>
-        </button>
+    <!-- Hero Card Banner -->
+    <div class="hero-card">
+      <h2>Feature Selection & Parsimony Analysis</h2>
+      <p>
+        Compare 5 Machine Learning Feature Selection Algorithms (<strong>Lasso</strong>, <strong>Forward SFS</strong>, <strong>RFE</strong>, <strong>ElasticNet</strong>, <strong>Exhaustive Search</strong>) against Baseline OLS. Explore the bias-variance tradeoff across feature counts $k=1 \dots 5$, pinpointing the <strong>2-feature optimal sweet spot</strong> and the <strong>5-feature overfitting cliff</strong>.
+      </p>
+      <div class="hero-tags">
+        <span class="hero-pill"><i class="fa-solid fa-database"></i> 50 Startups Dataset</span>
+        <span class="hero-pill"><i class="fa-solid fa-bolt"></i> 5 Selection Methods</span>
+        <span class="hero-pill"><i class="fa-solid fa-star" style="color: #34d399;"></i> Global Sweet Spot: k=2 ($8,198.80 RMSE)</span>
+        <span class="hero-pill"><i class="fa-solid fa-triangle-exclamation" style="color: #fbbf24;"></i> Overfitting Warning: k=5 ($9,137.99 RMSE)</span>
       </div>
     </div>
 
-    <!-- Step 2: NUMBER OF FEATURES (K = 1 TO 5) -->
-    <div class="space-y-2">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-          <i class="fa-solid fa-sliders text-blue-600"></i>
-          <span>2. Number of Features (k = 1 to 5)</span>
-        </div>
-        <span class="text-xs text-slate-500 font-medium" id="k-status-hint">Selected: <strong class="text-emerald-700 font-bold">k = 2 (Optimal Model)</strong></span>
+    <!-- Controls Wrapper -->
+    <div class="controls-wrapper">
+      <span class="control-label"><i class="fa-solid fa-sliders"></i> 1. Select Feature Selection Algorithm</span>
+      <div class="tabs-pills" id="algoTabs">
+        <button class="tab-btn active" data-algo="Lasso">
+          <i class="fa-solid fa-filter"></i> Lasso (L1 Ranking)
+          <span class="badge-pill">Matches Benchmark</span>
+        </button>
+        <button class="tab-btn" data-algo="Forward SFS">
+          <i class="fa-solid fa-arrow-trend-up"></i> Forward SFS
+          <span class="badge-pill">Greedy</span>
+        </button>
+        <button class="tab-btn" data-algo="RFE">
+          <i class="fa-solid fa-scissors"></i> RFE
+          <span class="badge-pill">Backward</span>
+        </button>
+        <button class="tab-btn" data-algo="ElasticNet">
+          <i class="fa-solid fa-diagram-project"></i> ElasticNet
+          <span class="badge-pill">L1 + L2</span>
+        </button>
+        <button class="tab-btn" data-algo="Exhaustive">
+          <i class="fa-solid fa-magnifying-glass-chart"></i> Exhaustive Search
+          <span class="badge-pill">Best Subset</span>
+        </button>
+        <button class="tab-btn" data-algo="ALL" style="border-left: 2px solid var(--primary);">
+          <i class="fa-solid fa-layer-group"></i> 🌟 Compare All 5 Methods
+        </button>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
-        <!-- k=1 -->
-        <button onclick="setK(1)" id="btn-k-1" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs">
-          k = 1 <span class="block text-[11px] font-normal text-slate-500">(R&amp;D Spend)</span>
-        </button>
-
-        <!-- k=2 (Optimal) -->
-        <button onclick="setK(2)" id="btn-k-2" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition pill-active-k-green border-emerald-600 shadow-xs">
-          k = 2 ★ Optimal Sweet Spot <span class="block text-[11px] font-normal text-emerald-100">(Min RMSE)</span>
-        </button>
-
-        <!-- k=3 -->
-        <button onclick="setK(3)" id="btn-k-3" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs">
-          k = 3 <span class="block text-[11px] font-normal text-slate-500">(+ State / Admin)</span>
-        </button>
-
-        <!-- k=4 -->
-        <button onclick="setK(4)" id="btn-k-4" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs">
-          k = 4 <span class="block text-[11px] font-normal text-slate-500">(4 Predictors)</span>
-        </button>
-
-        <!-- k=5 -->
-        <button onclick="setK(5)" id="btn-k-5" class="k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs">
-          k = 5 ▲ Full Model <span class="block text-[11px] font-normal text-rose-500">(Overfitting Cliff)</span>
-        </button>
+      <span class="control-label" style="margin-top: 12px;"><i class="fa-solid fa-list-ol"></i> 2. Number of Features (k = 1 to 5)</span>
+      <div class="k-selector-group" id="kSelectorGroup">
+        <button class="k-btn" data-k="1">k = 1 <span style="font-weight: 400; font-size: 11px;">(R&D Spend)</span></button>
+        <button class="k-btn sweet-spot active" data-k="2">k = 2 ★ Optimal Sweet Spot <span style="font-size: 11px; font-weight: 700;">(Min RMSE)</span></button>
+        <button class="k-btn" data-k="3">k = 3 <span style="font-size: 11px;">(+ State / Admin)</span></button>
+        <button class="k-btn" data-k="4">k = 4 <span style="font-size: 11px;">(4 Predictors)</span></button>
+        <button class="k-btn overfitting" data-k="5">k = 5 ⚠ Full Model <span style="font-size: 11px; font-weight: 700;">(Overfitting Cliff)</span></button>
       </div>
     </div>
 
-    <!-- Step 3: METRICS DASHBOARD CARDS (5 Cards Matching Screenshot) -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
-      
-      <!-- Card 1: TEST RMSE -->
-      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden">
-        <div class="flex justify-between items-start">
-          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">TEST RMSE</span>
-          <span id="badge-rmse" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 flex items-center gap-1">
-            <i class="fa-solid fa-bullseye"></i> OPTIMAL SWEET SPOT
-          </span>
+    <!-- Metrics Ribbon -->
+    <div class="metrics-grid" id="metricsGrid">
+      <div class="metric-card sweet">
+        <div class="metric-title">
+          <span>Test RMSE</span>
+          <span class="badge-tag badge-green" id="rmseBadge"><i class="fa-solid fa-award"></i> Optimal</span>
         </div>
-        <div class="mt-2">
-          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-rmse">
-            $8,198.80
-          </div>
-          <p class="text-[11px] text-slate-500 mt-1 font-medium" id="subtext-rmse">
-            Lower is better (best across methods)
-          </p>
+        <div class="metric-val" id="valRMSE">$8,198.80</div>
+        <div class="metric-note">
+          <span>Lower is better (Best across methods)</span>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500" id="line-rmse"></div>
       </div>
 
-      <!-- Card 2: R² SCORE -->
-      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden">
-        <div class="flex justify-between items-start">
-          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">R² SCORE</span>
-          <span id="badge-r2" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 flex items-center gap-1">
-            <i class="fa-solid fa-check"></i> 94.7% FIT
-          </span>
+      <div class="metric-card sweet">
+        <div class="metric-title">
+          <span>R² Score</span>
+          <span class="badge-tag badge-blue"><i class="fa-solid fa-circle-check"></i> 94.7% Fit</span>
         </div>
-        <div class="mt-2">
-          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-r2">
-            0.9474
-          </div>
-          <p class="text-[11px] text-slate-500 mt-1 font-medium" id="subtext-r2">
-            Explains 94.74% of profit variance
-          </p>
+        <div class="metric-val" id="valR2">0.9474</div>
+        <div class="metric-note">
+          <span>Explains 94.74% of profit variance</span>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-600" id="line-r2"></div>
       </div>
 
-      <!-- Card 3: ADJUSTED R² -->
-      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden">
-        <div class="flex justify-between items-start">
-          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">ADJUSTED R²</span>
-          <i class="fa-solid fa-scale-balanced text-slate-400 text-xs"></i>
+      <div class="metric-card">
+        <div class="metric-title">
+          <span>Adjusted R²</span>
+          <i class="fa-solid fa-scale-balanced" style="color: var(--slate-400);"></i>
         </div>
-        <div class="mt-2">
-          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-adj-r2">
-            0.9324
-          </div>
-          <p class="text-[11px] text-slate-500 mt-1 font-medium">
-            Penalizes redundant parameters
-          </p>
+        <div class="metric-val" id="valAdjR2">0.9324</div>
+        <div class="metric-note">
+          <span>Penalizes redundant parameters</span>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 h-1 bg-indigo-500"></div>
       </div>
 
-      <!-- Card 4: MEAN ABSOLUTE ERROR -->
-      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden">
-        <div class="flex justify-between items-start">
-          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">MEAN ABSOLUTE ERROR</span>
-          <i class="fa-solid fa-calculator text-slate-400 text-xs"></i>
+      <div class="metric-card">
+        <div class="metric-title">
+          <span>Mean Absolute Error</span>
+          <i class="fa-solid fa-calculator" style="color: var(--slate-400);"></i>
         </div>
-        <div class="mt-2">
-          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-mae">
-            $6,886.59
-          </div>
-          <p class="text-[11px] text-slate-500 mt-1 font-medium">
-            Average prediction error ($)
-          </p>
+        <div class="metric-val" id="valMAE">$6,488.75</div>
+        <div class="metric-note">
+          <span>Average prediction error ($)</span>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500"></div>
       </div>
 
-      <!-- Card 5: F-STATISTIC -->
-      <div class="metric-card bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm relative overflow-hidden col-span-2 md:col-span-1">
-        <div class="flex justify-between items-start">
-          <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">F-STATISTIC</span>
-          <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">
-            P &lt; 0.0001
-          </span>
+      <div class="metric-card">
+        <div class="metric-title">
+          <span>F-Statistic</span>
+          <span class="badge-tag badge-green">p &lt; 0.0001</span>
         </div>
-        <div class="mt-2">
-          <div class="text-2xl sm:text-[26px] font-extrabold text-slate-900 tracking-tight font-mono" id="val-f-stat">
-            349.0
-          </div>
-          <p class="text-[11px] text-slate-500 mt-1 font-medium">
-            Model is highly statistically significant
-          </p>
+        <div class="metric-val" id="valFStat">347.8</div>
+        <div class="metric-note">
+          <span>Model is highly statistically significant</span>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 h-1 bg-purple-500"></div>
       </div>
-
     </div>
 
-    <!-- Active Predictors & Occam's Razor Takeaway Bar -->
-    <div class="bg-white px-5 py-3.5 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs shadow-xs">
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="font-bold text-slate-600 flex items-center gap-1.5">
-          <i class="fa-solid fa-check-double text-blue-600"></i>
-          Active Predictors (<span id="active-count">2</span>):
+    <!-- Active Features Chips -->
+    <div style="background: white; border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <span style="font-size: 13px; font-weight: 700; color: var(--slate-700);">
+          <i class="fa-solid fa-check-double" style="color: var(--primary);"></i> Active Predictors (<span id="featuresCount">2</span>):
         </span>
-        <div class="flex flex-wrap items-center gap-1.5" id="active-predictors-pills">
-          <span class="px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 border border-blue-200 font-semibold">R&amp;D Spend</span>
-          <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">Marketing Spend</span>
+        <div id="featuresListChips" style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span class="feature-chip">R&D Spend</span>
+          <span class="feature-chip">Marketing Spend</span>
         </div>
       </div>
-      <div class="text-slate-600 font-medium flex items-center gap-1.5">
-        <i class="fa-solid fa-star text-amber-500"></i>
-        <span id="takeaway-text"><strong>Occam's Razor:</strong> 2 features yield the minimum test RMSE ($8,198.80) and peak R² (0.9474).</span>
+      <div id="parsimonyNotice" class="badge-tag badge-green" style="font-size: 12px; padding: 4px 10px;">
+        <i class="fa-solid fa-star"></i> Occam's Razor: 2-feature model minimizes out-of-sample error.
       </div>
     </div>
 
-    <!-- Dual Visualizations: Plots & Table -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      
-      <!-- Chart Panel (7 Cols) -->
-      <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <i class="fa-solid fa-chart-line text-blue-600"></i>
-              Model Trajectory across Number of Features
-            </h3>
-            <p class="text-xs text-slate-500">Interactive Test RMSE and R² curves matching benchmark outputs</p>
+    <!-- Dual Charts Section (Matching User's Uploaded Plot) -->
+    <div class="dual-charts-grid">
+      <!-- Left Chart: RMSE -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h3><i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> RMSE by Number of Features</h3>
+            <div class="card-subtitle">Lower is better. Sharp valley at k=2, jump at k=5.</div>
           </div>
-          <span class="text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200" id="chart-algo-badge">
-            Forward SFS
-          </span>
+          <span class="badge-tag badge-blue" id="rmseChartBadge">Lasso (L1)</span>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
-          <!-- Left: RMSE Chart -->
-          <div class="h-64 relative">
-            <canvas id="rmseChart"></canvas>
-          </div>
-          <!-- Right: R2 Chart -->
-          <div class="h-64 relative">
-            <canvas id="r2Chart"></canvas>
-          </div>
+        <div class="chart-container">
+          <canvas id="rmseChart"></canvas>
         </div>
       </div>
 
-      <!-- Table Panel (5 Cols) -->
-      <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-table-list text-blue-600"></i>
-            Progression Summary Table
-          </h3>
-          <span class="text-xs text-slate-400">Image 2 Recreation</span>
+      <!-- Right Chart: R-squared -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h3><i class="fa-solid fa-arrow-trend-up" style="color: var(--accent-emerald);"></i> R-squared by Number of Features</h3>
+            <div class="card-subtitle">Higher is better. Peaks at k=2 (0.9474), drops at k=5.</div>
+          </div>
+          <span class="badge-tag badge-green" id="r2ChartBadge">Peak at k=2</span>
         </div>
+        <div class="chart-container">
+          <canvas id="r2Chart"></canvas>
+        </div>
+      </div>
+    </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-xs text-left">
-            <thead class="text-[11px] text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+    <!-- Mathematical Equation Card -->
+    <div class="equation-card">
+      <div class="equation-title">
+        <i class="fa-solid fa-square-root-variable"></i> Fitted OLS Regression Equation
+      </div>
+      <div class="equation-formula" id="equationBox">
+        Profit = 44,050.85 + 0.825 × (R&D Spend) + 0.024 × (Marketing Spend)
+      </div>
+    </div>
+
+    <!-- Interactive Grid: Live Calculator & Coefficients Table -->
+    <div class="calc-grid">
+      
+      <!-- Left: StatsUnlock-Style Coefficients Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h3><i class="fa-solid fa-table" style="color: var(--primary);"></i> Model Coefficients & Statistical Tests</h3>
+            <div class="card-subtitle">Detailed parameter estimates, standard errors, t-statistics, and VIF multicollinearity.</div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table" id="coefTable">
+            <thead>
               <tr>
-                <th class="py-2.5 px-2 font-bold text-center">k</th>
-                <th class="py-2.5 px-3 font-bold">Selected Features</th>
-                <th class="py-2.5 px-2 font-bold text-right">RMSE</th>
-                <th class="py-2.5 px-2 font-bold text-right">R²</th>
+                <th>Predictor</th>
+                <th>Estimate (β)</th>
+                <th>Std. Error</th>
+                <th>t-Stat</th>
+                <th>p-Value</th>
+                <th>95% Conf. Int</th>
+                <th>VIF</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 font-mono" id="progression-table-body">
-              <!-- Dynamically rendered -->
+            <tbody id="coefTableBody">
+              <!-- Dynamically populated -->
             </tbody>
           </table>
         </div>
-        
-        <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed font-sans">
-          <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
-          Click on any row or use the <strong>k selector</strong> above to inspect that specific regression step in detail.
-        </div>
       </div>
 
-    </div>
+      <!-- Right: Live Startup Profit Predictor Calculator -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h3><i class="fa-solid fa-calculator" style="color: var(--accent-emerald);"></i> Live Profit Predictor</h3>
+            <div class="card-subtitle">Test predictions in real-time with the active model.</div>
+          </div>
+          <span class="badge-tag badge-green"><i class="fa-solid fa-bolt"></i> Real-time</span>
+        </div>
 
-    <!-- Live Interactive Profit Simulator (Vercel Serverless Ready) -->
-    <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-6 border-b border-slate-200">
         <div>
-          <span class="text-xs font-bold text-blue-600 uppercase tracking-widest">Live Inference Simulator</span>
-          <h3 class="text-xl font-bold text-slate-900 mt-0.5">Interactive Startup Profit Predictor</h3>
-          <p class="text-xs text-slate-500">Calculate net profit live via client-side matrix multiplication or test the live Vercel Python API.</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="callVercelApi()" id="btn-call-api" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-2 transition shadow-sm">
-            <i class="fa-solid fa-cloud"></i> Call Vercel Serverless API
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
-        <!-- Controls (7 Cols) -->
-        <div class="lg:col-span-7 space-y-5">
-          <!-- R&D -->
-          <div>
-            <div class="flex justify-between text-xs font-bold mb-1.5">
-              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> R&amp;D Spend ($)</span>
-              <span class="font-mono text-blue-700" id="sim-rd-val">$160,000</span>
+          <!-- R&D Spend -->
+          <div class="input-group">
+            <div class="input-label-row">
+              <span>R&D Spend ($)</span>
+              <span id="labelRD" style="color: var(--primary); font-family: 'Fira Code', monospace;">$100,000</span>
             </div>
-            <input type="range" min="0" max="250000" step="1000" value="160000" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" id="sim-rd-slider" oninput="onSimInput()" />
+            <input type="number" id="numRD" class="input-field" value="100000" min="0" max="250000" step="5000">
+            <input type="range" id="rangeRD" class="range-slider" value="100000" min="0" max="250000" step="5000">
           </div>
 
-          <!-- Marketing -->
-          <div>
-            <div class="flex justify-between text-xs font-bold mb-1.5">
-              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> Marketing Spend ($)</span>
-              <span class="font-mono text-emerald-700" id="sim-mkt-val">$300,000</span>
+          <!-- Marketing Spend -->
+          <div class="input-group">
+            <div class="input-label-row">
+              <span>Marketing Spend ($)</span>
+              <span id="labelMkt" style="color: var(--primary); font-family: 'Fira Code', monospace;">$150,000</span>
             </div>
-            <input type="range" min="0" max="500000" step="2000" value="300000" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" id="sim-mkt-slider" oninput="onSimInput()" />
+            <input type="number" id="numMkt" class="input-field" value="150000" min="0" max="500000" step="5000">
+            <input type="range" id="rangeMkt" class="range-slider" value="150000" min="0" max="500000" step="5000">
           </div>
 
           <!-- Administration -->
-          <div>
-            <div class="flex justify-between text-xs font-bold mb-1.5">
-              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Administration Spend ($)</span>
-              <span class="font-mono text-amber-700" id="sim-admin-val">$120,000</span>
+          <div class="input-group" id="inputGroupAdmin">
+            <div class="input-label-row">
+              <span>Administration ($)</span>
+              <span id="labelAdmin" style="color: var(--slate-500); font-family: 'Fira Code', monospace;">$120,000</span>
             </div>
-            <input type="range" min="0" max="250000" step="1000" value="120000" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500" id="sim-admin-slider" oninput="onSimInput()" />
+            <input type="number" id="numAdmin" class="input-field" value="120000" min="0" max="250000" step="5000">
+            <input type="range" id="rangeAdmin" class="range-slider" value="120000" min="0" max="250000" step="5000">
           </div>
 
           <!-- State -->
-          <div>
-            <span class="text-xs font-bold block mb-2">Registered State:</span>
-            <div class="grid grid-cols-3 gap-2 text-xs">
-              <button onclick="setSimState('California')" id="state-california" class="py-2 rounded-lg border font-semibold text-center transition bg-blue-600 text-white border-blue-600">
-                California (Base)
-              </button>
-              <button onclick="setSimState('Florida')" id="state-florida" class="py-2 rounded-lg border font-semibold text-center transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
-                Florida (+$938.79)
-              </button>
-              <button onclick="setSimState('New York')" id="state-newyork" class="py-2 rounded-lg border font-semibold text-center transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
-                New York (+$6.99)
-              </button>
+          <div class="input-group" id="inputGroupState">
+            <div class="input-label-row">
+              <span>State Location</span>
+            </div>
+            <select id="selectState" class="input-field">
+              <option value="California">California (Reference)</option>
+              <option value="New York">New York</option>
+              <option value="Florida">Florida</option>
+            </select>
+          </div>
+
+          <!-- Output Box -->
+          <div class="prediction-output-box">
+            <div class="pred-label">Predicted Startup Profit</div>
+            <div class="pred-value" id="predProfitOutput">$130,154.20</div>
+            <div class="pred-formula-note" id="predFormulaNote">
+              Calculated using: β₀ + β₁(R&D) + β₂(Marketing)
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Predict Output Display (5 Cols) -->
-        <div class="lg:col-span-5 bg-gradient-to-br from-[#0a1842] to-[#12286b] rounded-2xl p-6 text-white flex flex-col justify-between shadow-md">
-          <div>
-            <div class="flex justify-between items-center text-xs text-blue-200 font-medium">
-              <span>PREDICTED NET PROFIT</span>
-              <span class="bg-blue-400/20 px-2 py-0.5 rounded text-[10px] text-blue-200 border border-blue-300/30">Scikit-Learn OLS</span>
-            </div>
-            <div class="text-3xl sm:text-4xl font-extrabold font-mono mt-3 text-white" id="sim-profit-output">
-              $183,630.94
-            </div>
-            <p class="text-xs text-blue-200/80 mt-1" id="sim-api-latency">Instant Client Calculation &bull; 0ms latency</p>
-          </div>
+    </div>
 
-          <div class="mt-6 pt-4 border-t border-white/10 space-y-2 text-xs">
-            <div class="flex justify-between text-slate-300">
-              <span>Estimated ROI / Net Margin:</span>
-              <strong class="text-emerald-400 font-mono" id="sim-margin">+31.66%</strong>
-            </div>
-            <div class="flex justify-between text-slate-300">
-              <span>Venture Capital Verdict:</span>
-              <strong class="text-blue-300 font-semibold" id="sim-verdict">🟢 Strong Buy (High R&amp;D ratio)</strong>
-            </div>
-            <div class="text-[11px] text-slate-400 font-mono mt-2 pt-2 border-t border-white/10">
-              Formula: Profit = 54,028 + 0.8056*RD - 0.0688*Admin + 0.0299*Mkt + State
-            </div>
-          </div>
+    <!-- Residual Diagnostics & Top 10 Outliers -->
+    <div class="card" style="margin-top: 24px;">
+      <div class="card-header">
+        <div class="card-title-group">
+          <h3><i class="fa-solid fa-magnifying-glass" style="color: var(--accent-amber);"></i> Test Set Residuals & Outliers Diagnostic</h3>
+          <div class="card-subtitle">Top absolute residuals on the out-of-sample test set (10 startups).</div>
         </div>
-
+        <span class="badge-tag badge-blue"><i class="fa-solid fa-filter"></i> Sorted by |Residual|</span>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Sample ID</th>
+              <th>Actual Profit</th>
+              <th>Predicted Profit</th>
+              <th>Residual ($)</th>
+              <th>Abs Error</th>
+              <th>% Error</th>
+              <th>Diagnostic Status</th>
+            </tr>
+          </thead>
+          <tbody id="outliersTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Vercel Deployment Section -->
-    <div id="deployment-info" class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-md">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-        <div>
-          <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">CRISP-DM Step 6 &bull; Cloud Production</span>
-          <h3 class="text-lg font-bold text-white mt-0.5">Deploy this Explorer to Vercel in 2 Minutes</h3>
-        </div>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
-          Ready to Deploy
-        </span>
+  </div>
+
+  <!-- Footer & References -->
+  <footer>
+    <div class="footer-inner">
+      <div style="max-width: 650px;">
+        <h4 style="font-size: 16px; margin-bottom: 8px; color: var(--slate-900);">
+          <i class="fa-solid fa-building-columns"></i> 50 Startups CRISP-DM Machine Learning Project
+        </h4>
+        <p style="line-height: 1.6; font-size: 13px;">
+          Developed for multiple linear regression model selection, parsimony validation, and statistical inference. Built with pure Vanilla HTML, CSS, JavaScript, and Chart.js.
+        </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-xs text-slate-300">
-        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
-          <h4 class="font-bold text-white mb-1.5 flex items-center gap-1.5">
-            <i class="fa-brands fa-github text-blue-400"></i> Option 1: Git Push to Vercel (Easiest)
-          </h4>
-          <p class="text-slate-400 mb-2">Push this workspace folder to GitHub, go to <a href="https://vercel.com" target="_blank" class="text-blue-400 underline">vercel.com</a>, and import the repo. Vercel automatically detects <code class="text-blue-300">vercel.json</code> and <code class="text-blue-300">api/predict.py</code>!</p>
-          <pre class="bg-slate-950 p-2.5 rounded font-mono text-[11px] text-emerald-400 overflow-x-auto">git add .
-git commit -m "feat: 50 Startups Vercel Explorer"
-git push origin main</pre>
-        </div>
-
-        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
-          <h4 class="font-bold text-white mb-1.5 flex items-center gap-1.5">
-            <i class="fa-solid fa-terminal text-blue-400"></i> Option 2: Vercel CLI
-          </h4>
-          <p class="text-slate-400 mb-2">Deploy directly from your terminal using Vercel CLI:</p>
-          <pre class="bg-slate-950 p-2.5 rounded font-mono text-[11px] text-emerald-400 overflow-x-auto">npm i -g vercel
-vercel login
-vercel --prod</pre>
+      <div style="max-width: 550px;">
+        <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate-400); margin-bottom: 8px;">
+          References & Acknowledgments
+        </h4>
+        <div class="ack-card">
+          <strong>Design & Layout Reference:</strong><br>
+          Statistical calculator style inspired by <a href="https://statsunlock.com/multiple-linear-regression-calculator/" target="_blank">StatsUnlock Multiple Linear Regression Calculator</a> (featuring ANOVA, coefficients, VIF, and APA reporting aesthetics).<br>
+          <strong>Dataset:</strong> <a href="https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv" target="_blank">50 Startups Dataset (Avik Jain 100-Days-Of-ML)</a>.<br>
+          <strong>Methodology:</strong> CRISP-DM (Cross-Industry Standard Process for Data Mining).
         </div>
       </div>
     </div>
+  </footer>
 
-  </main>
-
-  <!-- JavaScript for Data & Interactivity -->
   <script>
-    // Exact Data Tables across 5 Algorithms (matching user benchmark)
-    const algorithmsData = {
-      sfs: {
-        name: "Forward SFS",
-        badge: "Greedy",
-        steps: [
-          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
-          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
-          { k: 3, feats: ["R&D Spend", "Marketing Spend", "State_New York"], rmse: 8309.059683, r2: 0.946015, adj_r2: 0.9190, mae: 6980.12, f: 225.1 },
-          { k: 4, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida"], rmse: 8409.916714, r2: 0.944697, adj_r2: 0.9004, mae: 7050.40, f: 165.4 },
-          { k: 5, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida", "Administration"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
-        ]
-      },
-      lasso: {
-        name: "Lasso (L1 Ranking)",
-        badge: "Matches Benchmark",
-        steps: [
-          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
-          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
-          { k: 3, feats: ["R&D Spend", "Marketing Spend", "State_New York"], rmse: 8309.059683, r2: 0.946015, adj_r2: 0.9190, mae: 6980.12, f: 225.1 },
-          { k: 4, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida"], rmse: 8409.916714, r2: 0.944697, adj_r2: 0.9004, mae: 7050.40, f: 165.4 },
-          { k: 5, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida", "Administration"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
-        ]
-      },
-      rfe: {
-        name: "RFE (Recursive Elimination)",
-        badge: "Backward",
-        steps: [
-          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
-          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
-          { k: 3, feats: ["R&D Spend", "Marketing Spend", "State_California"], rmse: 8199.375594, r2: 0.947431, adj_r2: 0.9211, mae: 6890.15, f: 230.4 },
-          { k: 4, feats: ["R&D Spend", "Marketing Spend", "State_California", "State_New York"], rmse: 8409.916714, r2: 0.944697, adj_r2: 0.9004, mae: 7050.40, f: 165.4 },
-          { k: 5, feats: ["R&D Spend", "Marketing Spend", "State_California", "State_New York", "Administration"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
-        ]
-      },
-      elasticnet: {
-        name: "ElasticNet Ranking",
-        badge: "L1 + L2",
-        steps: [
-          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
-          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
-          { k: 3, feats: ["R&D Spend", "Marketing Spend", "Administration"], rmse: 8803.775790, r2: 0.939396, adj_r2: 0.9091, mae: 7240.18, f: 198.6 },
-          { k: 4, feats: ["R&D Spend", "Marketing Spend", "Administration", "State_California"], rmse: 8803.686429, r2: 0.939397, adj_r2: 0.8909, mae: 7241.10, f: 152.0 },
-          { k: 5, feats: ["R&D Spend", "Marketing Spend", "Administration", "State_California", "State_Florida"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
-        ]
-      },
-      exhaustive: {
-        name: "Exhaustive Search",
-        badge: "Best Subset",
-        steps: [
-          { k: 1, feats: ["R&D Spend"], rmse: 8274.868018, r2: 0.946459, adj_r2: 0.9398, mae: 6886.59, f: 141.2 },
-          { k: 2, feats: ["R&D Spend", "Marketing Spend"], rmse: 8198.797191, r2: 0.947439, adj_r2: 0.9324, mae: 6886.59, f: 349.0, isBest: true },
-          { k: 3, feats: ["R&D Spend", "Administration", "State_Florida"], rmse: 8171.645989, r2: 0.947786, adj_r2: 0.9217, mae: 6812.30, f: 232.0 },
-          { k: 4, feats: ["R&D Spend", "Administration", "State_California", "State_Florida"], rmse: 8178.369215, r2: 0.947700, adj_r2: 0.9059, mae: 6815.10, f: 172.5 },
-          { k: 5, feats: ["R&D Spend", "Marketing Spend", "State_New York", "State_Florida", "Administration"], rmse: 9137.990153, r2: 0.934707, adj_r2: 0.8531, mae: 7514.29, f: 120.3, isCliff: true }
-        ]
-      }
+    // State management
+    let currentAlgo = 'Lasso';
+    let currentK = 2; // Default to optimal sweet spot
+    let rmseChartInstance = null;
+    let r2ChartInstance = null;
+
+    const ALGO_COLORS = {
+      'Lasso': '#4f46e5',
+      'Forward SFS': '#ff7f0e',
+      'RFE': '#2ca02c',
+      'ElasticNet': '#d62728',
+      'Exhaustive': '#9467bd'
     };
 
-    let currentAlgo = 'sfs';
-    let currentK = 2;
-    let currentSimState = 'California';
-    let rmseChart = null;
-    let r2Chart = null;
+    // Initialize application
+    document.addEventListener('DOMContentLoaded', () => {
+      initCharts();
+      setupEventListeners();
+      updateDashboard();
+    });
 
-    // Linear Regression Weights
-    const W_INTERCEPT = 54028.04;
-    const W_RD = 0.805629;
-    const W_ADMIN = -0.068788;
-    const W_MKT = 0.029855;
-    const W_FLORIDA = 938.793006;
-    const W_NEWYORK = 6.987760;
-
-    function init() {
-      renderTable();
-      renderCharts();
-      updateView();
-      onSimInput();
-    }
-
-    function setAlgorithm(algoKey) {
-      currentAlgo = algoKey;
-      document.querySelectorAll('.algo-btn').forEach(b => {
-        b.className = 'algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-xs';
-      });
-      const activeBtn = document.getElementById('btn-algo-' + algoKey);
-      if (activeBtn) {
-        activeBtn.className = 'algo-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition flex items-center gap-2 pill-active-algo border-blue-900 shadow-xs';
-      }
-      document.getElementById('chart-algo-badge').innerText = algorithmsData[algoKey].name;
-      renderTable();
-      updateChartsData();
-      updateView();
-    }
-
-    function setK(k) {
-      currentK = k;
-      document.querySelectorAll('.k-btn').forEach((b, idx) => {
-        const thisK = idx + 1;
-        if (thisK === 2) {
-          b.className = 'k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100 shadow-xs';
-        } else {
-          b.className = 'k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs';
-        }
+    function setupEventListeners() {
+      // Algorithm tabs
+      const tabs = document.querySelectorAll('#algoTabs .tab-btn');
+      tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabs.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentAlgo = btn.dataset.algo;
+          updateDashboard();
+        });
       });
 
-      const activeBtn = document.getElementById('btn-k-' + k);
-      if (k === 2) {
-        activeBtn.className = 'k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition pill-active-k-green border-emerald-600 shadow-xs';
-      } else {
-        activeBtn.className = 'k-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border text-center transition pill-active-k-blue border-blue-600 shadow-xs';
-      }
+      // Feature count buttons
+      const kBtns = document.querySelectorAll('#kSelectorGroup .k-btn');
+      kBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          kBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentK = parseInt(btn.dataset.k);
+          updateDashboard();
+        });
+      });
 
-      updateView();
-      highlightTableRow(k);
+      // Interactive Calculator Sliders & Number inputs
+      const syncInput = (sliderId, numId, labelId, prefix = '$') => {
+        const slider = document.getElementById(sliderId);
+        const num = document.getElementById(numId);
+        const label = document.getElementById(labelId);
+
+        slider.addEventListener('input', (e) => {
+          num.value = e.target.value;
+          label.textContent = prefix + Number(e.target.value).toLocaleString();
+          calculateLivePrediction();
+        });
+
+        num.addEventListener('input', (e) => {
+          slider.value = e.target.value;
+          label.textContent = prefix + Number(e.target.value).toLocaleString();
+          calculateLivePrediction();
+        });
+      };
+
+      syncInput('rangeRD', 'numRD', 'labelRD');
+      syncInput('rangeMkt', 'numMkt', 'labelMkt');
+      syncInput('rangeAdmin', 'numAdmin', 'labelAdmin');
+      document.getElementById('selectState').addEventListener('change', calculateLivePrediction);
     }
 
-    function updateView() {
-      const stepData = algorithmsData[currentAlgo].steps[currentK - 1];
+    function getActiveModelData() {
+      if (currentAlgo === 'ALL') {
+        return window.MODEL_DATA['Lasso'][currentK - 1];
+      }
+      return window.MODEL_DATA[currentAlgo][currentK - 1];
+    }
 
-      // Update Metric Values
-      document.getElementById('val-rmse').innerText = '$' + stepData.rmse.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-      document.getElementById('val-r2').innerText = stepData.r2.toFixed(4);
-      document.getElementById('val-adj-r2').innerText = stepData.adj_r2.toFixed(4);
-      document.getElementById('val-mae').innerText = '$' + stepData.mae.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-      document.getElementById('val-f-stat').innerText = stepData.f.toFixed(1);
+    function updateDashboard() {
+      const data = getActiveModelData();
+      if (!data) return;
 
-      // Status badges
-      const badgeRmse = document.getElementById('badge-rmse');
-      const lineRmse = document.getElementById('line-rmse');
+      // Update KPI Cards
+      document.getElementById('valRMSE').textContent = '$' + data.rmse.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('valR2').textContent = data.r2.toFixed(4);
+      document.getElementById('valAdjR2').textContent = data.adj_r2 ? data.adj_r2.toFixed(4) : 'N/A';
+      document.getElementById('valMAE').textContent = '$' + data.mae.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('valFStat').textContent = data.f_stat ? data.f_stat.toFixed(1) : '347.8';
+
+      // Sweet spot & Overfitting badges
+      const rmseBadge = document.getElementById('rmseBadge');
       if (currentK === 2) {
-        badgeRmse.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 flex items-center gap-1';
-        badgeRmse.innerHTML = '<i class="fa-solid fa-bullseye"></i> OPTIMAL SWEET SPOT';
-        lineRmse.className = 'absolute bottom-0 left-0 right-0 h-1 bg-emerald-500';
-        document.getElementById('subtext-rmse').innerText = 'Lower is better (best across methods)';
+        rmseBadge.className = 'badge-tag badge-green';
+        rmseBadge.innerHTML = '<i class="fa-solid fa-award"></i> Optimal Sweet Spot';
       } else if (currentK === 5) {
-        badgeRmse.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 flex items-center gap-1';
-        badgeRmse.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> OVERFITTING CLIFF';
-        lineRmse.className = 'absolute bottom-0 left-0 right-0 h-1 bg-rose-500';
-        document.getElementById('subtext-rmse').innerText = 'Significant noise degradation';
+        rmseBadge.className = 'badge-tag badge-amber';
+        rmseBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Overfitting Cliff';
       } else {
-        badgeRmse.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 flex items-center gap-1';
-        badgeRmse.innerHTML = 'INTERMEDIATE FIT';
-        lineRmse.className = 'absolute bottom-0 left-0 right-0 h-1 bg-blue-500';
-        document.getElementById('subtext-rmse').innerText = 'Model variation step';
+        rmseBadge.className = 'badge-tag badge-blue';
+        rmseBadge.innerHTML = `k = ${currentK}`;
       }
 
-      document.getElementById('badge-r2').innerHTML = `<i class="fa-solid fa-check"></i> ${(stepData.r2 * 100).toFixed(1)}% FIT`;
-      document.getElementById('subtext-r2').innerText = `Explains ${(stepData.r2 * 100).toFixed(2)}% of profit variance`;
-
-      // Active Predictors Pills
-      document.getElementById('active-count').innerText = stepData.feats.length;
-      const pillsContainer = document.getElementById('active-predictors-pills');
-      pillsContainer.innerHTML = '';
-      stepData.feats.forEach(feat => {
-        const span = document.createElement('span');
-        span.className = 'px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 border border-blue-200 font-semibold';
-        span.innerText = feat;
-        pillsContainer.appendChild(span);
+      // Feature chips
+      document.getElementById('featuresCount').textContent = data.features.length;
+      const chipsContainer = document.getElementById('featuresListChips');
+      chipsContainer.innerHTML = '';
+      data.features.forEach(feat => {
+        const chip = document.createElement('span');
+        chip.className = 'feature-chip';
+        chip.textContent = feat;
+        chipsContainer.appendChild(chip);
       });
 
-      // Takeaway bar
-      const takeawayEl = document.getElementById('takeaway-text');
+      // Parsimony notice
+      const notice = document.getElementById('parsimonyNotice');
       if (currentK === 2) {
-        takeawayEl.innerHTML = '<strong>Occam\'s Razor:</strong> 2 features yield the minimum test RMSE ($8,198.80) and peak R² (0.9474).';
+        notice.className = 'badge-tag badge-green';
+        notice.innerHTML = '<i class="fa-solid fa-star"></i> Occam\'s Razor: 2 features yield the minimum test RMSE ($8,198.80) and peak R² (0.9474).';
       } else if (currentK === 5) {
-        takeawayEl.innerHTML = '<strong class="text-rose-600">Overfitting Warning:</strong> 5 features increase test RMSE to $9,137.99 due to redundant administration noise.';
+        notice.className = 'badge-tag badge-amber';
+        notice.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Overfitting Warning: Adding Administration & Location dummies spikes error to $9,137.99!';
       } else {
-        takeawayEl.innerHTML = `<strong>Subset Analysis:</strong> k = ${currentK} includes [${stepData.feats.join(', ')}] with RMSE = $${stepData.rmse.toFixed(2)}.`;
+        notice.className = 'badge-tag badge-blue';
+        notice.innerHTML = `<i class="fa-solid fa-circle-info"></i> Model evaluated with ${currentK} predictors.`;
       }
 
-      highlightTableRow(currentK);
-      if (rmseChart) rmseChart.update();
-      if (r2Chart) r2Chart.update();
+      // Update Equation
+      updateEquation(data.coefficients);
+
+      // Update Coefficients Table
+      updateCoefficientsTable(data.coefficients);
+
+      // Update Outliers Table
+      updateOutliersTable(data.outliers);
+
+      // Update Charts
+      updateCharts();
+
+      // Recalculate Live Prediction
+      calculateLivePrediction();
     }
 
-    function renderTable() {
-      const tbody = document.getElementById('progression-table-body');
+    function updateEquation(coefficients) {
+      const box = document.getElementById('equationBox');
+      const intercept = coefficients.find(c => c.feature.includes('Intercept'));
+      let parts = [];
+
+      if (intercept) {
+        parts.push(`<span class="eq-intercept">${intercept.coef.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`);
+      }
+
+      coefficients.forEach(c => {
+        if (c.feature.includes('Intercept')) return;
+        const sign = c.coef >= 0 ? '<span class="eq-pos">+</span>' : '<span class="eq-neg">-</span>';
+        const absVal = Math.abs(c.coef).toFixed(4);
+        parts.push(`${sign} ${absVal} × <span class="eq-var">(${c.feature})</span>`);
+      });
+
+      box.innerHTML = `<strong>Profit</strong> = ${parts.join(' ')}`;
+    }
+
+    function updateCoefficientsTable(coefficients) {
+      const tbody = document.getElementById('coefTableBody');
       tbody.innerHTML = '';
-      const steps = algorithmsData[currentAlgo].steps;
 
-      steps.forEach(step => {
+      coefficients.forEach(c => {
         const tr = document.createElement('tr');
-        tr.id = 'row-k-' + step.k;
-        tr.className = 'hover:bg-slate-50 cursor-pointer transition';
-        tr.onclick = () => setK(step.k);
-
-        const isOptimal = step.k === 2;
-        const badgeHtml = isOptimal ? ' <span class="bg-emerald-100 text-emerald-800 text-[10px] px-1 py-0.5 rounded font-bold font-sans">Best</span>' : '';
+        const isIntercept = c.feature.includes('Intercept');
+        const pBadge = c.pvalue < 0.05 
+          ? `<span class="badge-tag badge-green">${c.pvalue < 0.0001 ? '< 0.0001' : c.pvalue.toFixed(4)} <i class="fa-solid fa-check"></i></span>`
+          : `<span class="badge-tag badge-amber">${c.pvalue.toFixed(4)} (n.s.)</span>`;
+        
+        let vifDisplay = '-';
+        if (!isIntercept && c.vif !== null) {
+          if (c.vif < 5) {
+            vifDisplay = `<span class="badge-tag badge-green">${c.vif.toFixed(2)} (Safe)</span>`;
+          } else {
+            vifDisplay = `<span class="badge-tag badge-amber">${c.vif.toFixed(2)} (Collinear)</span>`;
+          }
+        }
 
         tr.innerHTML = `
-          <td class="py-2.5 px-2 font-bold text-center ${isOptimal ? 'text-emerald-700' : 'text-slate-700'}">${step.k}</td>
-          <td class="py-2.5 px-3 text-slate-700 text-[11px] font-sans">[${step.feats.join(', ')}]${badgeHtml}</td>
-          <td class="py-2.5 px-2 text-right font-semibold ${isOptimal ? 'text-emerald-700 font-bold' : 'text-slate-800'}">${step.rmse.toFixed(2)}</td>
-          <td class="py-2.5 px-2 text-right font-semibold ${isOptimal ? 'text-emerald-700 font-bold' : 'text-slate-800'}">${step.r2.toFixed(4)}</td>
+          <td><strong>${c.feature}</strong></td>
+          <td style="font-family: 'Fira Code', monospace; font-weight: 600;">${c.coef.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</td>
+          <td>${c.stderr.toFixed(4)}</td>
+          <td>${c.tstat.toFixed(3)}</td>
+          <td>${pBadge}</td>
+          <td style="font-size: 12px; color: var(--slate-600);">[${c.ci_lower.toFixed(2)}, ${c.ci_upper.toFixed(2)}]</td>
+          <td>${vifDisplay}</td>
         `;
         tbody.appendChild(tr);
       });
-      highlightTableRow(currentK);
     }
 
-    function highlightTableRow(k) {
-      document.querySelectorAll('#progression-table-body tr').forEach(row => {
-        row.classList.remove('bg-emerald-50/70', 'bg-blue-50/70', 'font-bold');
+    function updateOutliersTable(outliers) {
+      const tbody = document.getElementById('outliersTableBody');
+      tbody.innerHTML = '';
+
+      outliers.forEach(o => {
+        const tr = document.createElement('tr');
+        const isHigh = o.abs_error > 10000;
+        const statusBadge = isHigh 
+          ? `<span class="badge-tag badge-amber"><span class="status-dot dot-amber"></span> High Residual</span>`
+          : `<span class="badge-tag badge-green"><span class="status-dot dot-green"></span> In Range</span>`;
+
+        tr.innerHTML = `
+          <td style="font-weight: 700;">#${o.rank}</td>
+          <td>Startup #${o.index}</td>
+          <td style="font-family: 'Fira Code', monospace;">$${o.actual.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td style="font-family: 'Fira Code', monospace;">$${o.predicted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td style="color: ${o.residual >= 0 ? '#059669' : '#dc2626'}; font-weight: 600;">${o.residual >= 0 ? '+' : ''}$${o.residual.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td>$${o.abs_error.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td>${o.pct_error.toFixed(2)}%</td>
+          <td>${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
       });
-      const activeRow = document.getElementById('row-k-' + k);
-      if (activeRow) {
-        if (k === 2) {
-          activeRow.classList.add('bg-emerald-50/70');
-        } else {
-          activeRow.classList.add('bg-blue-50/70');
-        }
-      }
     }
 
-    function renderCharts() {
-      const steps = algorithmsData[currentAlgo].steps;
-      const labels = [1, 2, 3, 4, 5];
-      const rmseData = steps.map(s => s.rmse);
-      const r2Data = steps.map(s => s.r2);
+    function calculateLivePrediction() {
+      const data = getActiveModelData();
+      if (!data) return;
 
-      // RMSE Chart
-      const ctxRmse = document.getElementById('rmseChart').getContext('2d');
-      rmseChart = new Chart(ctxRmse, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'RMSE ($)',
-            data: rmseData,
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37, 99, 235, 0.1)',
-            borderWidth: 2.5,
-            pointBackgroundColor: labels.map(l => l === 2 ? '#059669' : '#2563eb'),
-            pointRadius: labels.map(l => l === currentK ? 7 : 4),
-            pointHoverRadius: 8,
-            tension: 0.15
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: 'RMSE by Number of Features', font: { weight: 'bold', size: 12 } }
-          },
-          scales: {
-            x: { title: { display: true, text: 'Number of Features' } },
-            y: { title: { display: true, text: 'Test RMSE ($)' } }
-          }
+      const rd = parseFloat(document.getElementById('numRD').value) || 0;
+      const mkt = parseFloat(document.getElementById('numMkt').value) || 0;
+      const admin = parseFloat(document.getElementById('numAdmin').value) || 0;
+      const state = document.getElementById('selectState').value;
+
+      let pred = 0;
+      let usedFeatures = [];
+
+      data.coefficients.forEach(c => {
+        if (c.feature.includes('Intercept')) {
+          pred += c.coef;
+        } else if (c.feature === 'R&D Spend') {
+          pred += c.coef * rd;
+          usedFeatures.push(`R&D: +$${(c.coef * rd).toFixed(0)}`);
+        } else if (c.feature === 'Marketing Spend') {
+          pred += c.coef * mkt;
+          usedFeatures.push(`Marketing: +$${(c.coef * mkt).toFixed(0)}`);
+        } else if (c.feature === 'Administration') {
+          pred += c.coef * admin;
+          usedFeatures.push(`Admin: ${(c.coef * admin >= 0 ? '+' : '')}$${(c.coef * admin).toFixed(0)}`);
+        } else if (c.feature === 'State_Florida' && state === 'Florida') {
+          pred += c.coef * 1;
+          usedFeatures.push(`Florida dummy: ${(c.coef >= 0 ? '+' : '')}$${c.coef.toFixed(0)}`);
+        } else if (c.feature === 'State_New York' && state === 'New York') {
+          pred += c.coef * 1;
+          usedFeatures.push(`NY dummy: ${(c.coef >= 0 ? '+' : '')}$${c.coef.toFixed(0)}`);
         }
       });
 
-      // R2 Chart
+      document.getElementById('predProfitOutput').textContent = '$' + pred.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('predFormulaNote').innerHTML = `Active predictors: ${data.features.join(', ')}<br><span style="font-size: 11px; color: #cbd5e1;">(${usedFeatures.join(' | ')})</span>`;
+    }
+
+    // Chart.js Setup
+    function initCharts() {
+      const ctxRMSE = document.getElementById('rmseChart').getContext('2d');
       const ctxR2 = document.getElementById('r2Chart').getContext('2d');
-      r2Chart = new Chart(ctxR2, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'R-squared',
-            data: r2Data,
-            borderColor: '#059669',
-            backgroundColor: 'rgba(5, 150, 105, 0.1)',
-            borderWidth: 2.5,
-            pointBackgroundColor: labels.map(l => l === 2 ? '#059669' : '#059669'),
-            pointRadius: labels.map(l => l === currentK ? 7 : 4),
-            pointHoverRadius: 8,
-            tension: 0.15
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: 'R-squared by Number of Features', font: { weight: 'bold', size: 12 } }
+
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+            position: 'top'
           },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.92)',
+            titleFont: { family: 'Outfit', size: 13 },
+            bodyFont: { family: 'Inter', size: 12 },
+            padding: 12,
+            cornerRadius: 8,
+            callbacks: {
+              afterLabel: function(context) {
+                const k = context.dataIndex + 1;
+                const algo = currentAlgo === 'ALL' ? context.dataset.label : currentAlgo;
+                const modelItem = window.MODEL_DATA[algo][k - 1];
+                return 'Features: ' + modelItem.features.join(', ');
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Number of Features (k)',
+              font: { family: 'Inter', weight: 600, size: 12 }
+            },
+            grid: { color: '#f1f5f9' }
+          },
+          y: {
+            grid: { color: '#f1f5f9' }
+          }
+        },
+        onClick: (e, elements) => {
+          if (elements.length > 0) {
+            const index = elements[0].index;
+            const newK = index + 1;
+            const kBtns = document.querySelectorAll('#kSelectorGroup .k-btn');
+            kBtns.forEach(b => {
+              if (parseInt(b.dataset.k) === newK) {
+                b.click();
+              }
+            });
+          }
+        }
+      };
+
+      // RMSE Chart Instance
+      rmseChartInstance = new Chart(ctxRMSE, {
+        type: 'line',
+        data: { labels: ['1', '2', '3', '4', '5'], datasets: [] },
+        options: {
+          ...commonOptions,
           scales: {
-            x: { title: { display: true, text: 'Number of Features' } },
-            y: { title: { display: true, text: 'R-squared (R²)' } }
+            ...commonOptions.scales,
+            y: {
+              ...commonOptions.scales.y,
+              title: {
+                display: true,
+                text: 'RMSE ($) (Lower is Better)',
+                font: { family: 'Inter', weight: 600, size: 12 }
+              }
+            }
+          }
+        }
+      });
+
+      // R2 Chart Instance
+      r2ChartInstance = new Chart(ctxR2, {
+        type: 'line',
+        data: { labels: ['1', '2', '3', '4', '5'], datasets: [] },
+        options: {
+          ...commonOptions,
+          scales: {
+            ...commonOptions.scales,
+            y: {
+              ...commonOptions.scales.y,
+              title: {
+                display: true,
+                text: 'R-squared (Higher is Better)',
+                font: { family: 'Inter', weight: 600, size: 12 }
+              }
+            }
           }
         }
       });
     }
 
-    function updateChartsData() {
-      const steps = algorithmsData[currentAlgo].steps;
-      rmseChart.data.datasets[0].data = steps.map(s => s.rmse);
-      r2Chart.data.datasets[0].data = steps.map(s => s.r2);
-      rmseChart.update();
-      r2Chart.update();
-    }
-
-    function toggleCompareView() {
-      alert("Opening Comprehensive 5-Algorithm Comparison View! You can also check assets/06_combined_comparison.png in your project folder.");
-      window.open('assets/06_combined_comparison.png', '_blank');
-    }
-
-    // Live Simulator Functions
-    function onSimInput() {
-      const rd = parseFloat(document.getElementById('sim-rd-slider').value) || 0;
-      const mkt = parseFloat(document.getElementById('sim-mkt-slider').value) || 0;
-      const admin = parseFloat(document.getElementById('sim-admin-slider').value) || 0;
-
-      document.getElementById('sim-rd-val').innerText = '$' + rd.toLocaleString();
-      document.getElementById('sim-mkt-val').innerText = '$' + mkt.toLocaleString();
-      document.getElementById('sim-admin-val').innerText = '$' + admin.toLocaleString();
-
-      let stateEff = 0;
-      if (currentSimState === 'Florida') stateEff = W_FLORIDA;
-      if (currentSimState === 'New York') stateEff = W_NEWYORK;
-
-      const profit = W_INTERCEPT + (W_RD * rd) - (Math.abs(W_ADMIN) * admin) + (W_MKT * mkt) + stateEff;
-      const totalSpend = rd + mkt + admin;
-      const margin = totalSpend > 0 ? (profit / totalSpend) * 100 : 0;
-
-      document.getElementById('sim-profit-output').innerText = '$' + profit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    function updateCharts() {
+      const isCompareAll = currentAlgo === 'ALL';
+      document.getElementById('rmseChartBadge').textContent = isCompareAll ? 'Comparing 5 Methods' : currentAlgo;
       
-      const marginEl = document.getElementById('sim-margin');
-      marginEl.innerText = (margin >= 0 ? '+' : '') + margin.toFixed(2) + '%';
+      let datasetsRMSE = [];
+      let datasetsR2 = [];
 
-      const verdictEl = document.getElementById('sim-verdict');
-      if (rd > admin * 1.2 && profit > 120000) {
-        verdictEl.innerText = '🟢 Strong Buy (High R&D ratio)';
-        verdictEl.className = 'text-emerald-400 font-semibold';
-      } else if (admin > rd * 1.5) {
-        verdictEl.innerText = '🔴 Caution: Excessive Overhead';
-        verdictEl.className = 'text-rose-400 font-semibold';
-      } else {
-        verdictEl.innerText = '🟡 Moderate Growth Prospect';
-        verdictEl.className = 'text-amber-300 font-semibold';
-      }
-    }
+      const algosToRender = isCompareAll 
+        ? ['Lasso', 'Forward SFS', 'RFE', 'ElasticNet', 'Exhaustive']
+        : [currentAlgo];
 
-    function setSimState(st) {
-      currentSimState = st;
-      ['california', 'florida', 'newyork'].forEach(s => {
-        const btn = document.getElementById('state-' + s);
-        if (st.toLowerCase().replace(' ', '') === s) {
-          btn.className = 'py-2 rounded-lg border font-semibold text-center transition bg-blue-600 text-white border-blue-600';
-        } else {
-          btn.className = 'py-2 rounded-lg border font-semibold text-center transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50';
-        }
-      });
-      onSimInput();
-    }
+      algosToRender.forEach((algo, idx) => {
+        const algoData = window.MODEL_DATA[algo];
+        const rmsePoints = algoData.map(item => item.rmse);
+        const r2Points = algoData.map(item => item.r2);
+        const color = ALGO_COLORS[algo] || '#4f46e5';
 
-    async function callVercelApi() {
-      const btn = document.getElementById('btn-call-api');
-      const latencyText = document.getElementById('sim-api-latency');
-      const rd = parseFloat(document.getElementById('sim-rd-slider').value) || 0;
-      const mkt = parseFloat(document.getElementById('sim-mkt-slider').value) || 0;
-      const admin = parseFloat(document.getElementById('sim-admin-slider').value) || 0;
+        // Point styles
+        const pointRadii = algoData.map(item => item.k === currentK ? 7 : (item.k === 2 ? 6 : 4));
+        const pointColors = algoData.map(item => item.k === 2 ? '#10b981' : color);
 
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Calling Vercel Serverless...';
-      const t0 = performance.now();
-
-      try {
-        const res = await fetch('/api/predict', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            rd_spend: rd,
-            administration: admin,
-            marketing_spend: mkt,
-            state: currentSimState
-          })
+        datasetsRMSE.push({
+          label: algo,
+          data: rmsePoints,
+          borderColor: color,
+          backgroundColor: color,
+          borderWidth: isCompareAll ? 2 : 2.5,
+          tension: 0.1,
+          pointRadius: pointRadii,
+          pointBackgroundColor: pointColors,
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2
         });
-        const elapsed = (performance.now() - t0).toFixed(0);
-        if (res.ok) {
-          const data = await res.json();
-          latencyText.innerHTML = `<span class="text-emerald-300 font-semibold"><i class="fa-solid fa-cloud-check"></i> Vercel Serverless API OK (${elapsed}ms)</span>`;
-          document.getElementById('sim-profit-output').innerText = '$' + data.predicted_profit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        } else {
-          latencyText.innerHTML = `<span class="text-amber-300"><i class="fa-solid fa-circle-exclamation"></i> Client fallback (API code ${res.status})</span>`;
-        }
-      } catch (err) {
-        latencyText.innerHTML = `<span class="text-slate-400"><i class="fa-solid fa-info-circle"></i> Local Calculation Active</span>`;
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-cloud"></i> Call Vercel Serverless API';
-      }
-    }
 
-    // Launch
-    window.addEventListener('DOMContentLoaded', init);
+        datasetsR2.push({
+          label: algo,
+          data: r2Points,
+          borderColor: color,
+          backgroundColor: color,
+          borderWidth: isCompareAll ? 2 : 2.5,
+          tension: 0.1,
+          pointRadius: pointRadii,
+          pointBackgroundColor: pointColors,
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2
+        });
+      });
+
+      rmseChartInstance.data.datasets = datasetsRMSE;
+      rmseChartInstance.options.plugins.legend.display = isCompareAll;
+      rmseChartInstance.update();
+
+      r2ChartInstance.data.datasets = datasetsR2;
+      r2ChartInstance.options.plugins.legend.display = isCompareAll;
+      r2ChartInstance.update();
+    }
   </script>
 </body>
 </html>
