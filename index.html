@@ -13,6 +13,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="model_data.js"></script>
   <script src="boston_data.js"></script>
+  <script src="regression_engine.js"></script>
 
   <style>
     :root {
@@ -81,6 +82,8 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    [hidden] { display: none !important; }
 
     html { scroll-behavior: smooth; }
 
@@ -621,6 +624,73 @@
     .dot.green { background: var(--olive); }
     .dot.amber { background: var(--amber); }
 
+    /* ---------- Dataset loader ---------- */
+    .load-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .load-row + .load-row { margin-top: 12px; }
+
+    .text-input {
+      flex: 1;
+      min-width: 240px;
+      font: inherit;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: var(--clay);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--clay) 25%, transparent);
+    }
+
+    .btn {
+      font: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 9px 18px;
+      cursor: pointer;
+      transition: all .15s;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn:hover { border-color: var(--clay); }
+    .btn:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+    .btn.primary { background: var(--clay); border-color: var(--clay); color: #fff; }
+    .btn.primary:hover { background: var(--clay-strong); border-color: var(--clay-strong); }
+    .btn[disabled] { opacity: .55; cursor: progress; }
+
+    .sample-btn {
+      font: inherit;
+      font-size: 13px;
+      color: var(--clay-strong);
+      background: var(--clay-soft);
+      border: 1px solid color-mix(in srgb, var(--clay) 30%, transparent);
+      border-radius: 999px;
+      padding: 4px 12px;
+      cursor: pointer;
+    }
+
+    .sample-btn:hover { border-color: var(--clay); }
+    .load-hint { font-size: 13px; color: var(--text-3); }
+
+    .target-row { margin-top: 20px; max-width: 420px; }
+    .target-row .select-shell select { width: 100%; }
+
+    .status { margin-top: 16px; font-size: 13.5px; color: var(--text-2); min-height: 20px; line-height: 1.55; }
+    .status.error { color: var(--rose); }
+    .status.ok { color: var(--olive-strong); }
+
+    .tips { margin-top: 14px; padding-left: 18px; font-size: 13px; color: var(--text-3); line-height: 1.7; }
+
     /* ---------- Footer ---------- */
     footer { margin-top: 64px; border-top: 1px solid var(--border); padding: 36px 0 48px; color: var(--text-2); font-size: 13px; }
     .foot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
@@ -659,6 +729,7 @@
           <select id="problemSelect" aria-label="Choose a regression problem">
             <option value="startups">50 Startups — profit prediction</option>
             <option value="boston">Boston Housing — house price prediction</option>
+            <option value="custom">Custom dataset — load from a link or file</option>
           </select>
         </div>
       </div>
@@ -675,6 +746,39 @@
       <div class="stat-row" id="heroStats"></div>
     </section>
 
+    <!-- Custom dataset loader -->
+    <section class="card" id="loaderPanel" hidden style="margin-top: 8px;">
+      <div class="card-header">
+        <div>
+          <h3>Load your own dataset</h3>
+          <div class="card-sub">Paste a link to a CSV file or upload one. The analysis runs entirely in your browser, so nothing is sent to a server.</div>
+        </div>
+      </div>
+      <form class="load-row" id="loadForm" novalidate>
+        <input class="text-input" type="text" id="dataUrl" inputmode="url" autocomplete="off" spellcheck="false"
+               placeholder="https://raw.githubusercontent.com/…/data.csv" aria-label="Link to a CSV file">
+        <button class="btn primary" type="submit" id="loadBtn">Analyze</button>
+      </form>
+      <div class="load-row">
+        <label class="btn" for="dataFile">Upload a CSV file</label>
+        <input type="file" id="dataFile" accept=".csv,.tsv,.txt,text/csv" hidden>
+        <span class="load-hint">or try</span>
+        <button type="button" class="sample-btn" data-url="https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv">50 Startups</button>
+        <button type="button" class="sample-btn" data-url="boston_housing.csv">Boston Housing</button>
+      </div>
+      <div class="target-row" id="targetRow" hidden>
+        <label class="control-label" for="targetSelect">Target column (what to predict)</label>
+        <div class="select-shell"><select id="targetSelect"></select></div>
+      </div>
+      <div class="status" id="loadStatus" role="status" aria-live="polite"></div>
+      <ul class="tips">
+        <li>The file needs a header row, one numeric column to predict, and at least 20 complete rows.</li>
+        <li>Text columns with up to 8 different values become 0/1 dummy variables; the first value alphabetically is the reference.</li>
+        <li>Links must allow cross-origin downloads. <span class="mono">raw.githubusercontent.com</span> does, and GitHub "blob" links are converted automatically. For anything else, download the file and upload it.</li>
+      </ul>
+    </section>
+
+    <div id="analysis">
     <!-- Dataset overview -->
     <div class="section-title">The data</div>
     <section class="card">
@@ -858,6 +962,7 @@
         </table>
       </div>
     </section>
+    </div><!-- /#analysis -->
   </main>
 
   <footer>
@@ -885,10 +990,24 @@
     const ALGOS = ['Lasso', 'Forward SFS', 'RFE', 'ElasticNet', 'Exhaustive'];
     const ALGO_VARS = { 'Lasso': '--algo-1', 'Forward SFS': '--algo-2', 'RFE': '--algo-3', 'ElasticNet': '--algo-4', 'Exhaustive': '--algo-5' };
 
+    const niceStep = (range) => {
+      const raw = range / 200;
+      const pw = Math.pow(10, Math.floor(Math.log10(raw)));
+      return [1, 2, 5, 10].map(m => m * pw).find(x => x >= raw) || pw;
+    };
+
     const DATASETS = {
+      custom: {
+        id: 'custom', name: 'Custom dataset', empty: true,
+        eyebrow: 'Problem 03 · Custom dataset',
+        title: 'Bring your own data',
+        lede: 'Point the explorer at any CSV with a numeric column to predict. It will run the same five feature-selection methods and show you where adding predictors stops helping.',
+        models: () => ({})
+      },
       startups: {
         id: 'startups',
         name: '50 Startups',
+        prefix: '$', predictorNote: 'incl. 2 state dummies',
         eyebrow: 'Problem 01 · 50 Startups',
         title: 'Which spending decisions drive startup profit?',
         lede: 'Fifty start-ups, three spending lines plus a location, one question: how many of them does a regression actually need? Compare five selection methods as predictors are added one at a time and watch the test error bottom out before the full model.',
@@ -928,6 +1047,7 @@
       boston: {
         id: 'boston',
         name: 'Boston Housing',
+        prefix: '$', predictorNote: 'all numeric',
         eyebrow: 'Problem 02 · Boston Housing',
         title: 'What makes a Boston neighbourhood expensive?',
         lede: 'Five hundred and six census tracts, thirteen predictors, and a median home value to explain. With this many candidates, selection matters: see how quickly the error flattens out and which variables the five methods agree on.',
@@ -956,11 +1076,6 @@
       if (!window.BOSTON_DATA) return;
       const ds = DATASETS.boston;
       ds.overview = window.BOSTON_DATA.overview;
-      const niceStep = (range) => {
-        const raw = range / 200;
-        const p = Math.pow(10, Math.floor(Math.log10(raw)));
-        return [1, 2, 5, 10].map(m => m * p).find(s => s >= raw) || p;
-      };
       ds.inputs = ds.overview.map(o => {
         if (o.feature === 'CHAS') {
           return { type: 'select', label: 'CHAS · borders the Charles River', features: ['CHAS'], options: [
@@ -987,8 +1102,10 @@
 
     const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     const nf = (v, d = 2) => Number(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
-    const money = (v) => '$' + nf(v * ds.scale, ds.decimals);
-    const signedMoney = (v) => (v >= 0 ? '+' : '−') + '$' + nf(Math.abs(v) * ds.scale, ds.decimals);
+    const unit = () => (ds.prefix ?? '');
+    const money = (v) => (v < 0 ? '−' : '') + unit() + nf(Math.abs(v) * ds.scale, ds.decimals);
+    const signedMoney = (v) => (v >= 0 ? '+' : '−') + unit() + nf(Math.abs(v) * ds.scale, ds.decimals);
+    const activeAlgos = () => ALGOS.filter(a => ds.models()[a]);
     const coefFmt = (v) => nf(v, Math.abs(v) >= 100 ? 2 : Math.abs(v) >= 1 ? 3 : 4);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -997,7 +1114,7 @@
 
     // The k with the lowest test RMSE (ties go to the smaller k) for one method, or across all methods.
     function bestOf(algo) {
-      const algos = algo === 'ALL' ? ALGOS : [algo];
+      const algos = algo === 'ALL' ? activeAlgos() : [algo];
       let best = null;
       algos.forEach(a => modelsFor(a).forEach(m => {
         if (!best || m.rmse < best.rmse - 1e-9 || (Math.abs(m.rmse - best.rmse) <= 1e-9 && m.k < best.k)) {
@@ -1021,10 +1138,22 @@
       ds = DATASETS[id] || DATASETS.startups;
       document.getElementById('problemSelect').value = ds.id;
       document.title = ds.name + ' · Regression Explorer';
-      if (pushHash) { try { history.replaceState(null, '', '#' + ds.id); } catch (e) { /* file:// or sandbox */ } }
+      if (pushHash) {
+        try { history.replaceState(null, '', location.pathname + (ds.id === 'custom' ? location.search : '') + '#' + ds.id); } catch (e) { /* file:// or sandbox */ }
+      }
+
+      document.getElementById('loaderPanel').hidden = ds.id !== 'custom';
+      document.getElementById('analysis').hidden = !!ds.empty;
+      renderHero();
+      if (ds.empty) return;
+
+      // Hide methods that were not run for this dataset (e.g. Exhaustive on very wide files).
+      const tabs = document.querySelectorAll('#algoTabs .pill');
+      tabs.forEach(b => { b.hidden = b.dataset.algo !== 'ALL' && !ds.models()[b.dataset.algo]; });
+      if (currentAlgo !== 'ALL' && !ds.models()[currentAlgo]) currentAlgo = 'Lasso';
+      tabs.forEach(b => b.classList.toggle('active', b.dataset.algo === currentAlgo));
 
       currentK = bestOf(currentAlgo).k;
-      renderHero();
       renderOverview();
       buildKButtons();
       buildCalculatorInputs();
@@ -1035,12 +1164,15 @@
       document.getElementById('heroEyebrow').textContent = ds.eyebrow;
       document.getElementById('heroTitle').textContent = ds.title;
       document.getElementById('heroLede').textContent = ds.lede;
+      const statRow = document.getElementById('heroStats');
+      statRow.hidden = !!ds.empty;
+      if (ds.empty) return;
 
       const best = bestOf('ALL');
       const full = modelsFor('Lasso')[maxK() - 1];
       const stats = [
         ['Observations', ds.n.toLocaleString(), `${ds.trainN} train · ${ds.testN} test`],
-        ['Candidate predictors', ds.nFeatures, ds.id === 'startups' ? 'incl. 2 state dummies' : 'all numeric'],
+        ['Candidate predictors', ds.nFeatures, ds.predictorNote],
         ['Best test RMSE', money(best.rmse), `${best.algo}, k = ${best.k}`],
         ['Full-model RMSE', money(full.rmse), `all ${maxK()} predictors`]
       ];
@@ -1192,7 +1324,7 @@
 
       document.getElementById('valRMSE').textContent = money(data.rmse);
       document.getElementById('valR2').textContent = data.r2.toFixed(4);
-      document.getElementById('valAdjR2').textContent = data.adj_r2.toFixed(4);
+      document.getElementById('valAdjR2').textContent = data.adj_r2 == null ? '—' : data.adj_r2.toFixed(4);
       document.getElementById('valMAE').textContent = money(data.mae);
       document.getElementById('valFStat').textContent = nf(data.f_stat, 1);
       document.getElementById('r2Badge').textContent = (data.r2 * 100).toFixed(1) + '%';
@@ -1351,7 +1483,7 @@
 
     function updateCharts() {
       const isAll = currentAlgo === 'ALL';
-      const algos = isAll ? ALGOS : [currentAlgo];
+      const algos = isAll ? activeAlgos() : [currentAlgo];
       const sweet = sweetK();
       const surface = css('--surface');
       const sweetColor = css('--olive');
@@ -1392,6 +1524,174 @@
     }
 
     // ------------------------------------------------------------------
+    // Custom dataset: download / parse / analyse in the browser
+    // ------------------------------------------------------------------
+    let customTable = null;
+    let customLabel = '';
+    let busy = false;
+    let scrollAfter = false; // only scroll to the results after a deliberate click, not on page load
+
+    const el = (id) => document.getElementById(id);
+
+    function setStatus(msg, kind = '') {
+      const s = el('loadStatus');
+      s.textContent = msg;
+      s.className = 'status' + (kind ? ' ' + kind : '');
+    }
+
+    function setBusy(on) {
+      busy = on;
+      el('loadBtn').disabled = on;
+      el('targetSelect').disabled = on;
+    }
+
+    function normalizeUrl(u) {
+      u = u.trim();
+      const m = u.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/(.+)$/);
+      return m ? `https://raw.githubusercontent.com/${m[1]}/${m[2]}/${m[3]}` : u;
+    }
+
+    function labelFromUrl(u) {
+      try {
+        const name = decodeURIComponent(new URL(u, location.href).pathname.split('/').pop() || '');
+        return name.replace(/\.(csv|tsv|txt)$/i, '') || 'dataset';
+      } catch (e) { return 'dataset'; }
+    }
+
+    function buildCustomDataset(res, label) {
+      const span = res.target.max - res.target.min;
+      const decimals = span >= 1e6 ? 0 : span >= 10 ? 2 : 4;
+      const all = Object.values(res.models).flat();
+      const bestRmse = Math.min(...all.map(m => m.rmse));
+      const nNum = res.overview.filter(o => o.kind === 'numeric').length;
+      const nDum = res.overview.length - nNum;
+
+      const inputs = [];
+      const seen = new Set();
+      res.overview.forEach(o => {
+        if (o.kind === 'numeric') {
+          const step = niceStep(o.max - o.min);
+          const dp = step < 1 ? Math.ceil(-Math.log10(step)) : 0;
+          inputs.push({ type: 'number', feature: o.feature, label: o.feature, unit: '', min: o.min, max: o.max, step,
+                        def: +(Math.round(o.median / step) * step).toFixed(dp) });
+        } else if (!seen.has(o.source)) {
+          seen.add(o.source);
+          const group = res.overview.filter(x => x.kind === 'dummy' && x.source === o.source);
+          const zeros = Object.fromEntries(group.map(g => [g.feature, 0]));
+          inputs.push({ type: 'select', label: o.source, features: group.map(g => g.feature), options: [
+            { label: `${o.ref} (reference)`, values: zeros },
+            ...group.map(g => ({ label: g.level, values: { ...zeros, [g.feature]: 1 } }))
+          ] });
+        }
+      });
+
+      const t = res.target.name;
+      return {
+        id: 'custom', name: label, prefix: '',
+        eyebrow: `Custom dataset · ${label}`,
+        title: `What explains ${t}?`,
+        lede: `${res.meta.n.toLocaleString()} complete rows, ${res.meta.features} candidate predictor${res.meta.features > 1 ? 's' : ''} and one target to explain. Compare how five selection methods rank the predictors and where the test error stops improving.`,
+        models: () => res.models,
+        target: t, equationLabel: t, predLabel: `Predicted ${t}`,
+        rowLabel: 'Row', rowNoun: 'rows',
+        scale: 1, decimals, rmseAxis: `RMSE (${t})`,
+        outlierThreshold: 1.5 * bestRmse,
+        n: res.meta.n, trainN: res.meta.train_n, testN: res.meta.test_n, nFeatures: res.meta.features,
+        predictorNote: nDum ? `${nNum} numeric · ${nDum} dummy` : 'all numeric',
+        overviewSub: `Target: ${t}. Predictors are listed after encoding; text columns appear as 0/1 dummies. Rows are split 80/20 at random with a fixed seed.`,
+        overviewBadge: `${res.meta.n.toLocaleString()} rows · ${res.meta.features} predictors`,
+        overview: res.overview,
+        note: res.notices.length ? res.notices.join(' ') : null,
+        calcSub: 'Change the inputs to see what the selected model predicts. Only predictors in the active model are shown.',
+        inputs, kLabels: {}
+      };
+    }
+
+    async function runAnalysis() {
+      if (busy || !customTable) return;
+      setBusy(true);
+      setStatus('Preparing the data…');
+      try {
+        await new Promise(r => setTimeout(r, 30));
+        const prep = RegEngine.prepare(customTable, el('targetSelect').value);
+        const t0 = performance.now();
+        const res = await RegEngine.analyze(prep, { onProgress: (m) => setStatus(m) });
+        DATASETS.custom = buildCustomDataset(res, customLabel);
+        const secs = ((performance.now() - t0) / 1000).toFixed(1);
+        setStatus(`Done in ${secs}s — ${res.meta.n.toLocaleString()} rows, ${res.meta.features} predictors.`, 'ok');
+        currentK = 1;
+        setDataset('custom', true);
+        if (scrollAfter) el('analysis').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e) {
+        setStatus(e.message || String(e), 'error');
+      } finally {
+        scrollAfter = false;
+        setBusy(false);
+      }
+    }
+
+    async function ingest(text, label) {
+      customTable = RegEngine.readTable(text);
+      customLabel = label;
+      const nums = RegEngine.numericColumns(customTable);
+      if (!nums.length) throw new Error('No numeric column was found to use as the target.');
+      const select = el('targetSelect');
+      select.innerHTML = nums.map(n => `<option>${esc(n)}</option>`).join('');
+      const lastCol = customTable.columns[customTable.columns.length - 1].name;
+      select.value = nums.includes(lastCol) ? lastCol : nums[nums.length - 1];
+      el('targetRow').hidden = false;
+      await runAnalysis();
+    }
+
+    async function loadFromUrl(raw) {
+      if (busy) return;
+      const url = normalizeUrl(raw);
+      if (!url) { setStatus('Enter a link to a CSV file first.', 'error'); return; }
+      el('dataUrl').value = url;
+      setBusy(true);
+      setStatus('Downloading…');
+      try {
+        let text;
+        try {
+          const r = await fetch(url, { mode: 'cors' });
+          if (!r.ok) throw new Error(`the server answered ${r.status}`);
+          text = await r.text();
+        } catch (e) {
+          throw new Error(`Could not download that link (${e.message}). If the site blocks cross-origin requests, download the file and use "Upload a CSV file" instead.`);
+        }
+        setBusy(false);
+        await ingest(text, labelFromUrl(url));
+        try {
+          const isLocal = !/^https?:/i.test(url);
+          history.replaceState(null, '', location.pathname + (isLocal ? '' : '?data=' + encodeURIComponent(url)) + '#custom');
+        } catch (e) { /* ignore */ }
+      } catch (e) {
+        setStatus(e.message || String(e), 'error');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function setupLoader() {
+      el('loadForm').addEventListener('submit', (e) => { e.preventDefault(); scrollAfter = true; loadFromUrl(el('dataUrl').value); });
+      document.querySelectorAll('.sample-btn').forEach(b => b.addEventListener('click', () => { scrollAfter = true; loadFromUrl(b.dataset.url); }));
+      el('targetSelect').addEventListener('change', () => { scrollAfter = true; runAnalysis(); });
+      el('dataFile').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        e.target.value = '';
+        if (!file || busy) return;
+        scrollAfter = true;
+        setStatus(`Reading ${file.name}…`);
+        try {
+          await ingest(await file.text(), file.name.replace(/\.(csv|tsv|txt)$/i, ''));
+          try { history.replaceState(null, '', location.pathname + '#custom'); } catch (err) { /* ignore */ }
+        } catch (err) {
+          setStatus(err.message || String(err), 'error');
+        }
+      });
+    }
+
+    // ------------------------------------------------------------------
     // Boot
     // ------------------------------------------------------------------
     document.addEventListener('DOMContentLoaded', () => {
@@ -1415,8 +1715,12 @@
 
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateCharts);
 
-      const initial = DATASETS[location.hash.slice(1)] ? location.hash.slice(1) : 'startups';
+      setupLoader();
+
+      const dataParam = new URLSearchParams(location.search).get('data');
+      const initial = dataParam ? 'custom' : (DATASETS[location.hash.slice(1)] ? location.hash.slice(1) : 'startups');
       setDataset(initial, false);
+      if (dataParam) loadFromUrl(dataParam);
     });
   </script>
 </body>
